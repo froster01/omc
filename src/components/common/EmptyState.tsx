@@ -3,17 +3,22 @@
  */
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { COLORS, SPACING } from '../../utils/constants';
+import { MaterialIcon } from './MaterialIcon';
+import { COLORS, SPACING, BORDER_RADIUS, TYPOGRAPHY } from '../../utils/designTokens';
 
 interface EmptyStateProps {
   message: string;
   icon?: string;
+  title?: string;
 }
 
-export const EmptyState: React.FC<EmptyStateProps> = ({ message, icon }) => {
+export const EmptyState: React.FC<EmptyStateProps> = ({ message, icon = 'tray-arrow-down', title }) => {
   return (
     <View style={styles.container}>
-      {icon && <Text style={styles.icon}>{icon}</Text>}
+      <View style={styles.iconCircle}>
+        <MaterialIcon name={icon} size={32} color={COLORS.primary} />
+      </View>
+      {title && <Text style={styles.title}>{title}</Text>}
       <Text style={styles.message}>{message}</Text>
     </View>
   );
@@ -26,13 +31,25 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: SPACING.xl,
   },
-  icon: {
-    fontSize: 48,
+  iconCircle: {
+    width: 72,
+    height: 72,
+    borderRadius: BORDER_RADIUS.full,
+    backgroundColor: COLORS.surfaceContainerHigh,
+    alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: SPACING.md,
   },
+  title: {
+    ...TYPOGRAPHY.titleLg,
+    color: COLORS.text,
+    marginBottom: SPACING.xs,
+    textAlign: 'center',
+  },
   message: {
-    fontSize: 16,
+    ...TYPOGRAPHY.bodyLg,
     color: COLORS.textSecondary,
     textAlign: 'center',
+    maxWidth: 420,
   },
 });

@@ -5,13 +5,16 @@
 // API Configuration
 export const API_CONFIG = {
   // For Android Emulator, use 10.0.2.2 to reach host machine
-  // For physical device, use your computer's IP address (e.g., 192.168.1.100)
+  // For physical device, use your computer's IP address
+  // Change this based on your setup:
+  // - Emulator: 10.0.2.2
+  // - Physical device on same WiFi: 192.168.0.73
   BASE_URL: __DEV__
-    ? 'http://10.0.2.2:3000/api'
+    ? 'http://192.168.0.73:3001/api'
     : 'https://your-production-url.com/api',
   TIMEOUT: 10000,
   WS_URL: __DEV__
-    ? 'ws://10.0.2.2:3000'
+    ? 'ws://192.168.0.73:3001'
     : 'wss://your-production-url.com',
 };
 
@@ -45,31 +48,10 @@ export const CASH_MOVEMENT_TYPE = {
   CASH_OUT: 'CASH_OUT',
 } as const;
 
-// UI Constants
-export const COLORS = {
-  primary: '#007AFF',
-  secondary: '#5856D6',
-  success: '#34C759',
-  warning: '#FF9500',
-  error: '#FF3B30',
-  background: '#F2F2F7',
-  surface: '#FFFFFF',
-  text: '#000000',
-  textSecondary: '#8E8E93',
-  border: '#C6C6C8',
-} as const;
-
-export const SPACING = {
-  xs: 4,
-  sm: 8,
-  md: 16,
-  lg: 24,
-  xl: 32,
-} as const;
-
-export const BORDER_RADIUS = {
-  sm: 4,
-  md: 8,
-  lg: 12,
-  xl: 16,
-} as const;
+// UI constants are sourced from the live Stitch design system.
+export {
+  BORDER_RADIUS,
+  COLORS,
+  SPACING,
+  TYPOGRAPHY,
+} from './designTokens';

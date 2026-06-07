@@ -2,6 +2,7 @@
  * Formatting utilities for currency, dates, etc.
  */
 import { format, formatDistance } from 'date-fns';
+import { COLORS, getStatusColor as getTokenStatusColor } from './designTokens';
 
 /**
  * Format number as currency
@@ -70,16 +71,5 @@ export const formatOrderStatus = (status: string): string => {
  * Get status color based on order status
  */
 export const getStatusColor = (status: string): string => {
-  const colorMap: Record<string, string> = {
-    PENDING: '#FF9500',
-    ACCEPTED: '#007AFF',
-    PREPARING: '#5856D6',
-    AWAITING_PAYMENT: '#FF9500',
-    PAID_SYNCING: '#007AFF',
-    PAID_SYNCED_TO_LOYVERSE: '#34C759',
-    PAID_SYNC_FAILED: '#FF3B30',
-    DONE: '#34C759',
-    CANCELLED: '#8E8E93',
-  };
-  return colorMap[status] || '#8E8E93';
+  return getTokenStatusColor(status) || COLORS.textSecondary;
 };

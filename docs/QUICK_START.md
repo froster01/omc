@@ -1,181 +1,280 @@
-# Quick Start Guide - Olmosq Staff App
+# 🚀 QUICK START GUIDE
 
-## 🚀 Quick Setup (5 minutes)
+Get the Olmosq Staff Portal React Native app running in 5 minutes.
 
-### 1. Install Dependencies
+---
+
+## ⚡ Fast Track
+
 ```bash
 cd /home/ferostzz/Desktop/project/omc
-npm install
-```
 
-### 2. Configure API Endpoint
+# 1. Clean build
+cd android
+./gradlew clean
+cd ..
 
-Edit `src/utils/constants.ts` line 12-15:
-
-```typescript
-BASE_URL: __DEV__
-  ? 'http://10.0.2.2:3000/api'  // Android emulator
-  : 'https://your-production-url.com/api',
-```
-
-**For physical tablet:** Change `10.0.2.2` to your computer's IP address.
-
-**Find your IP:**
-```bash
-ip addr show | grep inet
-# Look for 192.168.x.x or 10.0.x.x
-```
-
-### 3. Run the App
-
-**Start Metro:**
-```bash
-npm start
-```
-
-**In another terminal, run on Android:**
-```bash
+# 2. Run on Android
 npm run android
 ```
 
-## 📱 First Run Checklist
+That's it! The app should launch on your emulator/device.
 
-- [ ] Backend API is running (`http://localhost:3000`)
-- [ ] Metro bundler is running
-- [ ] Android emulator or device is connected
-- [ ] App installed and launched
-- [ ] Login screen appears
-- [ ] Can login with staff credentials
+---
 
-## 🔧 Backend API Requirements
+## 📱 Testing the Screens
 
-You need to implement these REST endpoints in your olmosq-qr backend:
+Once the app is running, navigate to these screens:
 
-### Authentication
-```
-POST   /api/auth/login      - Login (returns JWT token)
-GET    /api/auth/me         - Get current user
-POST   /api/auth/logout     - Logout
-```
+### 1. LoginScreen (Entry Point)
+- **What to check:** Gradient background, glassmorphic card, icons render
+- **Expected:** Sage green branding, animated logo pulse, secure footer
 
-### Orders
-```
-GET    /api/orders          - List orders
-GET    /api/orders/:id      - Get order
-PATCH  /api/orders/:id/status - Update status
-POST   /api/orders/:id/payment - Record payment
-```
+### 2. DashboardScreen
+- **Navigate:** After login
+- **What to check:** Nav rail, metric cards with side borders, quick actions grid
+- **Expected:** Responsive nav (80dp/264dp), 3-column layouts, all icons visible
 
-### Shifts
-```
-GET    /api/shifts/current  - Current shift
-POST   /api/shifts/open     - Open shift
-POST   /api/shifts/close    - Close shift
-GET    /api/shifts/history  - Shift history
-```
+### 3. OrderDetailScreen
+- **Navigate:** Dashboard → Orders → Select an order
+- **What to check:** Display Large order number (57px), status timeline, item list
+- **Expected:** Large #0042, progress line, 60/40 layout split
 
-### WebSocket
-```
-ws://localhost:3000/ws/orders?token=<jwt>&staff=true
-```
+### 4. PaymentScreen
+- **Navigate:** OrderDetail → Record Payment
+- **What to check:** Calculator grid, payment methods, change calculation
+- **Expected:** 3×4 calculator, working math, QR code button
 
-## 🐛 Common Issues
+### 5. TablesScreen
+- **Navigate:** Dashboard → Tables
+- **What to check:** QR codes generate, 4-column grid
+- **Expected:** 10 table cards with actual QR codes
 
-### "Cannot connect to server"
-- Check backend is running
-- Verify API URL in `constants.ts`
-- For physical device, use computer IP not `localhost`
+---
 
-### "Build failed"
+## 🔍 Visual Checklist
+
+### Colors ✓
+- [ ] Primary sage green (#A7C472) everywhere
+- [ ] Soft mint background (#F5F9F3)
+- [ ] Forest green accents (#739949)
+
+### Typography ✓
+- [ ] Large numbers are HUGE (48-57px)
+- [ ] All text is Hanken Grotesk (or system fallback)
+- [ ] Labels are uppercase and tracked
+
+### Layout ✓
+- [ ] Nav rail is 80dp or 264dp width
+- [ ] Cards have 12-24dp padding
+- [ ] Grids have proper gaps (16-24dp)
+- [ ] Everything follows 8px grid
+
+### Icons ✓
+- [ ] All icons render (not showing boxes)
+- [ ] Icons are correct colors
+- [ ] Sizes are appropriate (20-36px)
+
+### Interactions ✓
+- [ ] Buttons scale down on press (0.98)
+- [ ] Navigation works
+- [ ] Calculator inputs numbers
+- [ ] Forms accept text
+
+---
+
+## 🐛 Troubleshooting
+
+### Icons Not Showing
 ```bash
-cd android && ./gradlew clean && cd ..
-npx react-native start --reset-cache
-npm run android
-```
-
-### Metro bundler issues
-```bash
-watchman watch-del-all
-rm -rf node_modules && npm install
-npx react-native start --reset-cache
-```
-
-## 📦 Project Structure
-
-```
-omc/
-├── src/
-│   ├── api/                    # API clients
-│   │   ├── client.ts          # Axios with auth interceptors
-│   │   ├── auth.api.ts        # Authentication endpoints
-│   │   ├── orders.api.ts      # Orders endpoints
-│   │   ├── shifts.api.ts      # Shifts endpoints
-│   │   └── ...
-│   ├── components/
-│   │   ├── common/            # Reusable UI (Button, Card, etc)
-│   │   ├── orders/            # Order-specific components
-│   │   └── shifts/            # Shift components
-│   ├── hooks/
-│   │   ├── useAuth.ts         # Authentication hook
-│   │   ├── useOrders.ts       # Orders with React Query
-│   │   ├── useShift.ts        # Shift management
-│   │   └── useWebSocket.ts    # Real-time updates
-│   ├── navigation/
-│   │   └── AppNavigator.tsx   # Navigation setup
-│   ├── screens/
-│   │   ├── auth/              # Login screen
-│   │   ├── dashboard/         # Dashboard
-│   │   ├── orders/            # Order screens
-│   │   ├── shifts/            # Shift screens
-│   │   └── menu/              # Menu sync
-│   ├── types/                 # TypeScript types
-│   └── utils/                 # Utilities & constants
-└── App.tsx                    # Entry point
-```
-
-## 🎯 Next Steps
-
-1. **Backend:**
-   - Implement REST API endpoints in olmosq-qr
-   - Add JWT Bearer token authentication
-   - Update WebSocket to accept token query param
-
-2. **Testing:**
-   - Test login flow
-   - Test order list and real-time updates
-   - Test payment recording
-   - Test shift open/close
-
-3. **Production:**
-   - Update API URLs for production
-   - Generate signed APK
-   - Install on production tablet
-
-## 💡 Development Tips
-
-**View React Native logs:**
-```bash
-npx react-native log-android
-```
-
-**Debug menu on device:**
-- Shake device or press: `adb shell input keyevent 82`
-
-**Reload app:**
-- Press `R` in Metro terminal
-- Or double-tap `R` on device
-
-**Clear everything:**
-```bash
-watchman watch-del-all
-rm -rf node_modules
-rm -rf android/build
+cd android
+./gradlew clean
+cd ..
 rm -rf android/app/build
-npm install
-cd android && ./gradlew clean && cd ..
-npx react-native start --reset-cache
+npm run android
 ```
+
+### Build Fails
+```bash
+cd android
+./gradlew clean --refresh-dependencies
+cd ..
+npm run android
+```
+
+### App Crashes on Start
+Check Metro bundler logs:
+```bash
+npm start -- --reset-cache
+```
+
+### Gradient Not Showing
+Linear gradient should work. If not, check imports in LoginScreen.
+
+### QR Codes Not Rendering
+SVG library issue. Clean build and retry:
+```bash
+cd android && ./gradlew clean && cd .. && npm run android
+```
+
+---
+
+## 📊 What Should Work
+
+### ✅ Fully Functional
+- Login form (UI only, auth hooks need backend)
+- Navigation between screens
+- All layouts render correctly
+- Icons display
+- Buttons respond to touch
+- Calculator input works
+- QR codes generate
+
+### ⚠️ Mock Data
+- Dashboard metrics (hardcoded 5, 3, 42)
+- Order details (sample order #0042)
+- Payment amounts (sample $24.50)
+- Tables list (10 sample tables)
+
+### ⏳ Not Yet Implemented
+- Actual authentication
+- Real-time order updates
+- Backend API calls
+- WebSocket connections
+- Data persistence
+- 10 remaining screens
+
+---
+
+## 🎯 Success Indicators
+
+**You'll know it's working when:**
+
+1. **App launches** without crashes
+2. **Login screen shows** gradient + glass card + icons
+3. **Navigation works** (can click through screens)
+4. **All icons render** (no empty boxes)
+5. **QR codes appear** on Tables screen
+6. **Layouts match** the Stitch designs visually
+
+---
+
+## 📸 Visual Reference
+
+Compare your running app to:
+- `staff-login-page.png` (in project root)
+- `menu-settings-page.png`
+- `orders-page.png`
+- `shift-page.png`
+- `tables-qr-page.png`
+
+These are screenshots from the Stitch designs for comparison.
+
+---
+
+## 🔧 Common First-Run Issues
+
+### Issue: Metro bundler error
+**Fix:** Reset cache
+```bash
+npm start -- --reset-cache
+```
+
+### Issue: "Unable to resolve module"
+**Fix:** Reinstall dependencies
+```bash
+rm -rf node_modules
+npm install
+npm run android
+```
+
+### Issue: Gradle build timeout
+**Fix:** Increase memory
+```bash
+export GRADLE_OPTS="-Xmx4096m"
+cd android && ./gradlew clean && cd ..
+npm run android
+```
+
+### Issue: Device not detected
+**Fix:** Check ADB
+```bash
+adb devices
+# If empty, restart adb:
+adb kill-server
+adb start-server
+```
+
+---
+
+## 📋 Pre-Flight Checklist
+
+Before running, ensure:
+
+- [ ] Node.js installed (v22.11.0+)
+- [ ] Android Studio installed
+- [ ] Android SDK configured
+- [ ] Emulator running OR device connected
+- [ ] `npm install` completed
+- [ ] No other apps using port 8081
+
+---
+
+## 🎬 What to Expect
+
+### First Launch (~2-3 minutes)
+1. Gradle build (60-90 seconds)
+2. Metro bundler starts
+3. App installs on device/emulator
+4. JavaScript bundle loads
+5. Login screen appears
+
+### Subsequent Launches (~10-20 seconds)
+- Much faster
+- Only JS bundle reloads
+- No Gradle rebuild needed
+
+---
 
 ## 📞 Need Help?
 
-Check the main README.md for detailed documentation.
+### Check These First
+1. **Metro Bundler Terminal:** Look for errors
+2. **Android Logcat:** `adb logcat | grep ReactNative`
+3. **Build Logs:** In Android Studio or terminal
+
+### Documentation
+- `NATIVE_MODULE_LINKING_GUIDE.md` - Detailed setup
+- `FINAL_IMPLEMENTATION_REPORT.md` - What's built
+- `STITCH_CONVERSION_REPORT.md` - Architecture details
+
+---
+
+## 🎉 Success!
+
+If you see the login screen with:
+- ✅ Gradient background
+- ✅ Olmosq logo
+- ✅ Glass card
+- ✅ All icons
+- ✅ Fingerprint prompt
+- ✅ Secure footer
+
+**You're ready to go!** 🚀
+
+Navigate through the app and compare to the Stitch designs in `/home/ferostzz/Downloads/stitch_olmosq_app/`.
+
+---
+
+## 🔄 Next Steps
+
+1. **Test all 5 screens** using the checklist above
+2. **Report any issues** (specific error messages help)
+3. **Implement remaining screens** (10 left)
+4. **Connect to backend** when ready
+5. **Deploy to production**
+
+---
+
+**Quick Start Complete!** Ready to test? Run: `npm run android` 🚀
+

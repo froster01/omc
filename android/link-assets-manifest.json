@@ -1,0 +1,81 @@
+{
+  "migIndex": 1,
+  "data": [
+    {
+      "path": "assets/fonts/HankenGrotesk-Black.ttf",
+      "sha1": "628ed502687d9d19a405c4c822d0164a1e0637c1"
+    },
+    {
+      "path": "assets/fonts/HankenGrotesk-BlackItalic.ttf",
+      "sha1": "65780964f4892739c1137bfd3bf5bda4b849fb24"
+    },
+    {
+      "path": "assets/fonts/HankenGrotesk-Bold.ttf",
+      "sha1": "b8afdae7093b3f601e14753eeea7e025d94ae2e1"
+    },
+    {
+      "path": "assets/fonts/HankenGrotesk-BoldItalic.ttf",
+      "sha1": "6dad42dbba1d1fdde215bf97abbf0a66f6e65292"
+    },
+    {
+      "path": "assets/fonts/HankenGrotesk-ExtraBold.ttf",
+      "sha1": "0dc93cc7c4ada63a249b3acca52514aeeb6f1b40"
+    },
+    {
+      "path": "assets/fonts/HankenGrotesk-ExtraBoldItalic.ttf",
+      "sha1": "43669bd83b03ad6b091733660dccb86966edc16b"
+    },
+    {
+      "path": "assets/fonts/HankenGrotesk-ExtraLight.ttf",
+      "sha1": "5f40538b7587dd6566fabfcf375604b869d86ae0"
+    },
+    {
+      "path": "assets/fonts/HankenGrotesk-ExtraLightItalic.ttf",
+      "sha1": "2d4e6f467bfd6cc83c6d34e608c2a600510f2eb0"
+    },
+    {
+      "path": "assets/fonts/HankenGrotesk-Italic.ttf",
+      "sha1": "671cbad7e36523bf5d4cb42a279035d703656bc0"
+    },
+    {
+      "path": "assets/fonts/HankenGrotesk-Light.ttf",
+      "sha1": "6ae13b421bdf492528acd2f7845ab3f95481519a"
+    },
+    {
+      "path": "assets/fonts/HankenGrotesk-LightItalic.ttf",
+      "sha1": "efd0849d40f629b83d68ab135c6a39ca360566ca"
+    },
+    {
+      "path": "assets/fonts/HankenGrotesk-Medium.ttf",
+      "sha1": "eed074cd0621132f6c524cdab636df8ae619671b"
+    },
+    {
+      "path": "assets/fonts/HankenGrotesk-MediumItalic.ttf",
+      "sha1": "19412001be81d406d2de18190439f876995bc518"
+    },
+    {
+      "path": "assets/fonts/HankenGrotesk-Regular.ttf",
+      "sha1": "cc1950817ead1ba9642a34b638304bb30f7b0e54"
+    },
+    {
+      "path": "assets/fonts/HankenGrotesk-SemiBold.ttf",
+      "sha1": "878e1c7708ddcf131425ed1d5a0aea535911fd77"
+    },
+    {
+      "path": "assets/fonts/HankenGrotesk-SemiBoldItalic.ttf",
+      "sha1": "b743c19288eb3af111b8b3fc2244b346ccf34a4e"
+    },
+    {
+      "path": "assets/fonts/HankenGrotesk-Thin.ttf",
+      "sha1": "8905ecefa402bbc676fe81c9627a843fff33d707"
+    },
+    {
+      "path": "assets/fonts/HankenGrotesk-ThinItalic.ttf",
+      "sha1": "d30140a1d0c3005aaffe6aa4bd72aab8429c9931"
+    },
+    {
+      "path": "assets/fonts/README.md",
+      "sha1": "59297c8892348e43869e9ba99278beaf3f91ba49"
+    }
+  ]
+}

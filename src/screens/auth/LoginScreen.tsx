@@ -1,5 +1,5 @@
 /**
- * Login Screen
+ * Login Screen - Stitch Sage Green Design
  */
 import React, { useState } from 'react';
 import {
@@ -10,10 +10,14 @@ import {
   KeyboardAvoidingView,
   Platform,
   Alert,
+  Image,
 } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 import { Button } from '../../components/common/Button';
+import { MaterialIcon } from '../../components/common/MaterialIcon';
+import { GlassCard } from '../../components/layout/GlassCard';
 import { useAuth } from '../../hooks/useAuth';
-import { COLORS, SPACING, BORDER_RADIUS } from '../../utils/constants';
+import { COLORS, SPACING, BORDER_RADIUS, TYPOGRAPHY } from '../../utils/designTokens';
 import type { LoginScreenProps } from '../../types/navigation.types';
 
 export const LoginScreen: React.FC<LoginScreenProps> = () => {
@@ -36,96 +40,173 @@ export const LoginScreen: React.FC<LoginScreenProps> = () => {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-      <View style={styles.content}>
-        <Text style={styles.title}>Staff Login</Text>
-        <Text style={styles.subtitle}>Olmosq QR Ordering System</Text>
+    <LinearGradient
+      colors={['#F5F9F0', '#E8F0E0']}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={styles.container}>
+      <KeyboardAvoidingView
+        style={styles.keyboardView}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+        <View style={styles.content}>
+          {/* Branding Header with Logo */}
+          <View style={styles.brandingContainer}>
+            <Image
+              source={require('../../../assets/olmosq-logo.png')}
+              style={styles.logo}
+              resizeMode="contain"
+            />
+            <Text style={styles.title}>Olmosq Coffee</Text>
+            <Text style={styles.subtitle}>Staff Portal</Text>
+          </View>
 
-        <View style={styles.form}>
-          <TextInput
-            style={styles.input}
-            placeholder="Username"
-            placeholderTextColor={COLORS.textSecondary}
-            value={username}
-            onChangeText={setUsername}
-            autoCapitalize="none"
-            autoCorrect={false}
-            editable={!isLoading}
-          />
+          {/* Login Form Card */}
+          <GlassCard style={styles.formCard}>
+            <View style={styles.form}>
+              {/* Staff ID Field */}
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>Staff ID</Text>
+                <View style={styles.inputContainer}>
+                  <MaterialIcon
+                    name="account"
+                    size={20}
+                    color={COLORS.primary}
+                    style={styles.inputIcon}
+                  />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Enter ID number"
+                    placeholderTextColor={COLORS.textDisabled}
+                    value={username}
+                    onChangeText={setUsername}
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    editable={!isLoading}
+                  />
+                </View>
+              </View>
 
-          <TextInput
-            style={styles.input}
-            placeholder="Password"
-            placeholderTextColor={COLORS.textSecondary}
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-            autoCapitalize="none"
-            autoCorrect={false}
-            editable={!isLoading}
-            onSubmitEditing={handleLogin}
-          />
+              {/* Password Field */}
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>Password</Text>
+                <View style={styles.inputContainer}>
+                  <MaterialIcon
+                    name="lock"
+                    size={20}
+                    color={COLORS.primary}
+                    style={styles.inputIcon}
+                  />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="••••••••"
+                    placeholderTextColor={COLORS.textDisabled}
+                    value={password}
+                    onChangeText={setPassword}
+                    secureTextEntry
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    editable={!isLoading}
+                    onSubmitEditing={handleLogin}
+                  />
+                </View>
+              </View>
 
-          {error && <Text style={styles.error}>{error}</Text>}
+              {error && <Text style={styles.error}>{error}</Text>}
 
-          <Button
-            title="Login"
-            onPress={handleLogin}
-            loading={isLoading}
-            size="large"
-            style={styles.button}
-          />
+              {/* Action Button */}
+              <Button
+                title="Sign In"
+                onPress={handleLogin}
+                loading={isLoading}
+                size="large"
+                icon="login"
+                style={styles.button}
+              />
+            </View>
+          </GlassCard>
         </View>
-      </View>
-    </KeyboardAvoidingView>
+      </KeyboardAvoidingView>
+    </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+  },
+  keyboardView: {
+    flex: 1,
   },
   content: {
     flex: 1,
     justifyContent: 'center',
-    padding: SPACING.xl,
+    alignItems: 'center',
+    paddingHorizontal: SPACING.xl,
+  },
+  brandingContainer: {
+    alignItems: 'center',
+    marginBottom: SPACING.lg,
+  },
+  logo: {
+    width: 96,
+    height: 96,
+    marginBottom: SPACING.md,
   },
   title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: COLORS.text,
-    textAlign: 'center',
-    marginBottom: SPACING.sm,
+    ...TYPOGRAPHY.headlineLg,
+    color: COLORS.tertiary,
+    fontWeight: '900',
+    marginBottom: SPACING.xs,
   },
   subtitle: {
-    fontSize: 16,
-    color: COLORS.textSecondary,
-    textAlign: 'center',
-    marginBottom: SPACING.xl,
+    ...TYPOGRAPHY.bodyLg,
+    color: COLORS.secondaryDark,
+    fontWeight: '500',
+  },
+  formCard: {
+    width: '100%',
+    maxWidth: 450,
+    padding: SPACING.cardPaddingLg,
   },
   form: {
-    marginTop: SPACING.lg,
+    gap: SPACING.md,
+  },
+  inputGroup: {
+    gap: SPACING.xs,
+  },
+  label: {
+    ...TYPOGRAPHY.labelMd,
+    color: COLORS.tertiary,
+    fontWeight: '600',
+    marginLeft: SPACING.xs,
+  },
+  inputContainer: {
+    position: 'relative',
+    backgroundColor: 'rgba(255, 255, 255, 0.5)',
+    borderRadius: BORDER_RADIUS.lg,
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  inputIcon: {
+    position: 'absolute',
+    left: SPACING.md,
+    top: 18,
+    zIndex: 1,
   },
   input: {
-    backgroundColor: COLORS.surface,
-    borderRadius: BORDER_RADIUS.md,
-    padding: SPACING.md,
-    fontSize: 16,
+    ...TYPOGRAPHY.bodyLg,
+    paddingLeft: SPACING.xxxl,
+    paddingRight: SPACING.md,
+    paddingVertical: SPACING.md,
     color: COLORS.text,
-    marginBottom: SPACING.md,
-    borderWidth: 1,
-    borderColor: COLORS.border,
+    fontWeight: '500',
   },
   error: {
+    ...TYPOGRAPHY.bodyMd,
     color: COLORS.error,
-    fontSize: 14,
-    marginBottom: SPACING.md,
     textAlign: 'center',
   },
   button: {
-    marginTop: SPACING.md,
+    marginTop: SPACING.sm,
   },
 });

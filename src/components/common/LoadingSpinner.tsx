@@ -3,7 +3,7 @@
  */
 import React from 'react';
 import { View, ActivityIndicator, Text, StyleSheet } from 'react-native';
-import { COLORS, SPACING } from '../../utils/constants';
+import { COLORS, SPACING, TYPOGRAPHY } from '../../utils/designTokens';
 
 interface LoadingSpinnerProps {
   message?: string;
@@ -31,7 +31,7 @@ const styles = StyleSheet.create({
   },
   message: {
     marginTop: SPACING.md,
-    fontSize: 16,
+    ...TYPOGRAPHY.bodyLg,
     color: COLORS.textSecondary,
   },
 });

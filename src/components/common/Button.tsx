@@ -8,18 +8,19 @@ import {
   StyleSheet,
   ActivityIndicator,
   ViewStyle,
-  TextStyle,
 } from 'react-native';
-import { COLORS, SPACING, BORDER_RADIUS } from '../../utils/constants';
+import { MaterialIcon } from './MaterialIcon';
+import { COLORS, SPACING, BORDER_RADIUS, TYPOGRAPHY } from '../../utils/designTokens';
 
 interface ButtonProps {
   title: string;
   onPress: () => void;
-  variant?: 'primary' | 'secondary' | 'danger' | 'outline';
+  variant?: 'primary' | 'secondary' | 'tonal' | 'danger' | 'outline' | 'ghost';
   size?: 'small' | 'medium' | 'large';
   disabled?: boolean;
   loading?: boolean;
   style?: ViewStyle;
+  icon?: string;
 }
 
 export const Button: React.FC<ButtonProps> = ({
@@ -30,7 +31,19 @@ export const Button: React.FC<ButtonProps> = ({
   disabled = false,
   loading = false,
   style,
+  icon,
 }) => {
+  const iconColor =
+    disabled
+      ? COLORS.textDisabled
+      : variant === 'primary'
+        ? COLORS.onPrimary
+        : variant === 'secondary'
+          ? COLORS.onSecondaryContainer
+          : variant === 'danger'
+            ? COLORS.onError
+            : COLORS.primary;
+
   const buttonStyle = [
     styles.button,
     styles[`button_${variant}`],
@@ -53,9 +66,18 @@ export const Button: React.FC<ButtonProps> = ({
       disabled={disabled || loading}
       activeOpacity={0.7}>
       {loading ? (
-        <ActivityIndicator color={variant === 'outline' ? COLORS.primary : '#FFFFFF'} />
+        <ActivityIndicator color={variant === 'outline' || variant === 'tonal' || variant === 'ghost' ? COLORS.primary : COLORS.onPrimary} />
       ) : (
-        <Text style={textStyle}>{title}</Text>
+        <>
+          {icon && (
+            <MaterialIcon
+              name={icon}
+              size={size === 'large' ? 22 : 20}
+              color={iconColor}
+            />
+          )}
+          <Text style={textStyle}>{title}</Text>
+        </>
       )}
     </TouchableOpacity>
   );
@@ -63,68 +85,81 @@ export const Button: React.FC<ButtonProps> = ({
 
 const styles = StyleSheet.create({
   button: {
-    borderRadius: BORDER_RADIUS.md,
+    borderRadius: BORDER_RADIUS.full,
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
+    gap: SPACING.sm,
+    borderWidth: 1,
+    borderColor: 'transparent',
   },
   button_primary: {
     backgroundColor: COLORS.primary,
   },
   button_secondary: {
-    backgroundColor: COLORS.secondary,
+    backgroundColor: COLORS.secondaryContainer,
+  },
+  button_tonal: {
+    backgroundColor: COLORS.surfaceContainerHigh,
+    borderColor: COLORS.outlineVariant,
   },
   button_danger: {
     backgroundColor: COLORS.error,
   },
   button_outline: {
     backgroundColor: 'transparent',
-    borderWidth: 2,
-    borderColor: COLORS.primary,
+    borderColor: COLORS.outline,
+  },
+  button_ghost: {
+    backgroundColor: 'transparent',
   },
   button_small: {
     paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.sm,
-    minHeight: 36,
+    minHeight: SPACING.touchTarget,
   },
   button_medium: {
     paddingHorizontal: SPACING.lg,
-    paddingVertical: SPACING.md,
-    minHeight: 44,
+    minHeight: SPACING.touchTarget,
   },
   button_large: {
     paddingHorizontal: SPACING.xl,
-    paddingVertical: SPACING.md,
-    minHeight: 52,
+    minHeight: SPACING.touchTargetLg,
   },
   buttonDisabled: {
-    opacity: 0.5,
+    backgroundColor: COLORS.surfaceContainerHighest,
+    borderColor: COLORS.outlineVariant,
   },
   text: {
-    fontWeight: '600',
+    ...TYPOGRAPHY.labelLg,
   },
   text_primary: {
-    color: '#FFFFFF',
+    color: COLORS.onPrimary,
   },
   text_secondary: {
-    color: '#FFFFFF',
+    color: COLORS.onSecondaryContainer,
+  },
+  text_tonal: {
+    color: COLORS.primary,
   },
   text_danger: {
-    color: '#FFFFFF',
+    color: COLORS.onError,
   },
   text_outline: {
+    color: COLORS.primary,
+  },
+  text_ghost: {
     color: COLORS.primary,
   },
   text_small: {
     fontSize: 14,
   },
   text_medium: {
-    fontSize: 16,
+    fontSize: 14,
   },
   text_large: {
-    fontSize: 18,
+    fontSize: 16,
   },
   textDisabled: {
-    opacity: 1,
+    color: COLORS.textDisabled,
   },
 });
