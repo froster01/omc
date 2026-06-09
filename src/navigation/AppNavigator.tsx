@@ -2,6 +2,7 @@
  * App Navigator - Main navigation setup with toggleable back drawer
  */
 import React, { useEffect } from 'react';
+import { StatusBar } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -115,6 +116,7 @@ export const AppNavigator = () => {
 
   return (
     <NavigationContainer>
+      <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
       {!isAuthenticated ? (
         <AuthStack.Navigator>
           <AuthStack.Screen

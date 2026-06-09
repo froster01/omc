@@ -1,12 +1,23 @@
 /**
  * CustomDrawerContent - Permanent sidebar navigation for tablet landscape
- * Based on screenshot design with 7 nav items
+ * Uses Lucide icons with modern, beautified design
  */
 
 import React from 'react';
-import { View, Text, StyleSheet, Pressable, Image } from 'react-native';
+import { View, Text, StyleSheet, Pressable, Image, StatusBar } from 'react-native';
 import { DrawerContentScrollView, DrawerContentComponentProps } from '@react-navigation/drawer';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import {
+  LayoutDashboard,
+  ShoppingCart,
+  Clock,
+  Table2,
+  RefreshCw,
+  BarChart3,
+  Wallet,
+  User,
+  ChevronRight,
+  LogOut,
+} from 'lucide-react-native';
 import { useAuth } from '../../hooks/useAuth';
 import { COLORS, SPACING, BORDER_RADIUS, TYPOGRAPHY } from '../../utils/designTokens';
 
@@ -15,17 +26,17 @@ const logoSource = require('../../../assets/olmosq-logo.png');
 interface NavItem {
   name: string;
   label: string;
-  icon: string;
+  icon: React.ComponentType<{ size?: number; color?: string; strokeWidth?: number }>;
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { name: 'Dashboard', label: 'Dashboard', icon: 'view-dashboard' },
-  { name: 'Orders', label: 'Orders', icon: 'cart' },
-  { name: 'Shift', label: 'Shift', icon: 'clock-outline' },
-  { name: 'Tables', label: 'Tables', icon: 'table-furniture' },
-  { name: 'MenuSync', label: 'Menu', icon: 'sync' },
-  { name: 'ShiftReports', label: 'Reports', icon: 'chart-bar' },
-  { name: 'CashDrawer', label: 'Cash Drawer', icon: 'cash-register' },
+  { name: 'Dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { name: 'Orders', label: 'Orders', icon: ShoppingCart },
+  { name: 'Shift', label: 'Shift', icon: Clock },
+  { name: 'Tables', label: 'Tables', icon: Table2 },
+  { name: 'MenuSync', label: 'Menu', icon: RefreshCw },
+  { name: 'ShiftReports', label: 'Reports', icon: BarChart3 },
+  { name: 'CashDrawer', label: 'Cash Drawer', icon: Wallet },
 ];
 
 export const CustomDrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
@@ -34,16 +45,18 @@ export const CustomDrawerContent: React.FC<DrawerContentComponentProps> = (props
   const currentRoute = state.routes[state.index].name;
 
   const staffName = user?.displayName || user?.username || 'Staff';
-  const staffRole = 'Staff'; // Could come from user.role if available
+  const staffRole = 'Barista'; // Could come from user.role if available
 
   return (
     <View style={styles.container}>
       {/* Logo Area */}
       <View style={styles.logoContainer}>
-        <Image source={logoSource} style={styles.logo} resizeMode="contain" />
+        <View style={styles.logoCircle}>
+          <Image source={logoSource} style={styles.logo} resizeMode="contain" />
+        </View>
         <View style={styles.brandText}>
-          <Text style={styles.brandTitle}>Olmosq Coffee POS</Text>
-          <Text style={styles.brandSubtitle}>Fuel Your Day</Text>
+          <Text style={styles.brandTitle}>Olmosq</Text>
+          <Text style={styles.brandSubtitle}>Coffee POS</Text>
         </View>
       </View>
 
@@ -55,6 +68,7 @@ export const CustomDrawerContent: React.FC<DrawerContentComponentProps> = (props
         <View style={styles.navItems}>
           {NAV_ITEMS.map((item) => {
             const isActive = currentRoute === item.name;
+            const IconComponent = item.icon;
             return (
               <Pressable
                 key={item.name}
@@ -64,11 +78,13 @@ export const CustomDrawerContent: React.FC<DrawerContentComponentProps> = (props
                   pressed && styles.navItemPressed,
                 ]}
                 onPress={() => navigation.navigate(item.name)}>
-                <Icon
-                  name={item.icon}
-                  size={20}
-                  color={isActive ? COLORS.onPrimary : COLORS.onSurface}
-                />
+                <View style={[styles.iconWrapper, isActive && styles.iconWrapperActive]}>
+                  <IconComponent
+                    size={16}
+                    color={isActive ? COLORS.primary : COLORS.onPrimary}
+                    strokeWidth={2}
+                  />
+                </View>
                 <Text
                   style={[
                     styles.navLabel,
@@ -86,13 +102,13 @@ export const CustomDrawerContent: React.FC<DrawerContentComponentProps> = (props
       <View style={styles.bottomSection}>
         <View style={styles.userCard}>
           <View style={styles.userAvatar}>
-            <Icon name="account" size={20} color={COLORS.primary} />
+            <User size={14} color={COLORS.primary} strokeWidth={2} />
           </View>
           <View style={styles.userInfo}>
-            <Text style={styles.userName}>{staffName}</Text>
+            <Text style={styles.userName} numberOfLines={1}>{staffName}</Text>
             <Text style={styles.userRole}>{staffRole}</Text>
           </View>
-          <Icon name="chevron-right" size={16} color={COLORS.onSurfaceVariant} />
+          <ChevronRight size={14} color={COLORS.onPrimary} strokeWidth={2} opacity={0.5} />
         </View>
 
         <Pressable
@@ -101,7 +117,7 @@ export const CustomDrawerContent: React.FC<DrawerContentComponentProps> = (props
             pressed && styles.navItemPressed,
           ]}
           onPress={logout}>
-          <Icon name="logout" size={18} color={COLORS.error} />
+          <LogOut size={16} color={COLORS.error} strokeWidth={2} />
           <Text style={styles.logoutText}>Logout</Text>
         </Pressable>
       </View>
@@ -113,21 +129,29 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.primary,
+    paddingTop: StatusBar.currentHeight ?? 0,
   },
   logoContainer: {
     paddingHorizontal: SPACING.md,
-    paddingTop: SPACING.lg,
+    paddingTop: SPACING.md,
     paddingBottom: SPACING.md,
     flexDirection: 'row',
     alignItems: 'center',
     gap: SPACING.sm,
     borderBottomWidth: 1,
-    borderBottomColor: `${COLORS.onPrimary}1A`,
+    borderBottomColor: `${COLORS.onPrimary}15`,
+  },
+  logoCircle: {
+    width: 36,
+    height: 36,
+    borderRadius: BORDER_RADIUS.full,
+    backgroundColor: COLORS.onPrimary,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   logo: {
-    width: 32,
-    height: 32,
-    borderRadius: BORDER_RADIUS.sm,
+    width: 24,
+    height: 24,
   },
   brandText: {
     flex: 1,
@@ -136,11 +160,13 @@ const styles = StyleSheet.create({
     ...TYPOGRAPHY.titleMd,
     color: COLORS.onPrimary,
     fontWeight: '700',
+    letterSpacing: 0.5,
   },
   brandSubtitle: {
-    ...TYPOGRAPHY.labelMd,
+    ...TYPOGRAPHY.labelSm,
     color: COLORS.onPrimary,
     opacity: 0.8,
+    marginTop: 1,
   },
   navItemsContainer: {
     flexGrow: 1,
@@ -148,15 +174,15 @@ const styles = StyleSheet.create({
   },
   navItems: {
     paddingHorizontal: SPACING.sm,
-    gap: SPACING.xxs,
+    gap: 2,
   },
   navItem: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: SPACING.sm,
-    paddingVertical: SPACING.sm,
+    paddingVertical: SPACING.xs + 2,
     borderRadius: BORDER_RADIUS.sm,
-    minHeight: 40,
+    minHeight: 36,
     gap: SPACING.sm,
   },
   navItemActive: {
@@ -166,10 +192,18 @@ const styles = StyleSheet.create({
     opacity: 0.8,
     transform: [{ scale: 0.98 }],
   },
+  iconWrapper: {
+    width: 22,
+    height: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  iconWrapperActive: {},
   navLabel: {
     ...TYPOGRAPHY.labelMd,
     color: COLORS.onPrimary,
     flex: 1,
+    fontWeight: '500',
   },
   navLabelActive: {
     color: COLORS.primary,
@@ -177,22 +211,22 @@ const styles = StyleSheet.create({
   },
   bottomSection: {
     paddingHorizontal: SPACING.sm,
-    paddingVertical: SPACING.md,
+    paddingVertical: SPACING.sm,
     borderTopWidth: 1,
-    borderTopColor: `${COLORS.onPrimary}1A`,
-    gap: SPACING.sm,
+    borderTopColor: `${COLORS.onPrimary}15`,
+    gap: SPACING.xs,
   },
   userCard: {
-    backgroundColor: `${COLORS.onPrimary}1A`,
+    backgroundColor: `${COLORS.onPrimary}15`,
     borderRadius: BORDER_RADIUS.sm,
-    padding: SPACING.sm,
+    padding: SPACING.xs + 2,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: SPACING.sm,
+    gap: SPACING.xs,
   },
   userAvatar: {
-    width: 32,
-    height: 32,
+    width: 28,
+    height: 28,
     borderRadius: BORDER_RADIUS.full,
     backgroundColor: COLORS.onPrimary,
     alignItems: 'center',
@@ -202,7 +236,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   userName: {
-    ...TYPOGRAPHY.titleMd,
+    ...TYPOGRAPHY.labelMd,
     color: COLORS.onPrimary,
     fontWeight: '600',
   },
@@ -210,6 +244,7 @@ const styles = StyleSheet.create({
     ...TYPOGRAPHY.labelSm,
     color: COLORS.onPrimary,
     opacity: 0.7,
+    marginTop: 1,
   },
   logoutButton: {
     flexDirection: 'row',
@@ -217,10 +252,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: SPACING.xs,
     backgroundColor: COLORS.errorContainer,
-    paddingVertical: SPACING.sm,
+    paddingVertical: SPACING.xs + 2,
     paddingHorizontal: SPACING.sm,
     borderRadius: BORDER_RADIUS.sm,
-    minHeight: 40,
+    minHeight: 36,
   },
   logoutText: {
     ...TYPOGRAPHY.labelMd,

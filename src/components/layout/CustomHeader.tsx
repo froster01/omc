@@ -2,7 +2,7 @@
  * Custom Header - Compact topbar with menu, title, date, and notification bell
  */
 import React, { useMemo } from 'react';
-import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { View, Text, StyleSheet, Pressable, StatusBar } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useNavigation } from '@react-navigation/native';
 import { COLORS, SPACING, TYPOGRAPHY } from '../../utils/designTokens';
@@ -60,11 +60,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.sm,
+    paddingTop: (StatusBar.currentHeight ?? 0) + SPACING.sm,
+    paddingBottom: SPACING.sm,
     backgroundColor: COLORS.surface,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.surfaceVariant,
-    height: 56,
   },
   leftSection: {
     flexDirection: 'row',
