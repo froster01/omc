@@ -2,7 +2,8 @@
  * Orders List Component
  */
 import React, { useState } from 'react';
-import { View, FlatList, StyleSheet, Text } from 'react-native';
+import { View, StyleSheet, Text } from 'react-native';
+import { FlashList } from '@shopify/flash-list';
 import { OrderCard } from './OrderCard';
 import { EmptyState } from '../common/EmptyState';
 import { SPACING, COLORS } from '../../utils/constants';
@@ -45,11 +46,10 @@ export const OrdersList: React.FC<OrdersListProps> = ({ orders, onOrderPress }) 
       {filteredOrders.length === 0 ? (
         <EmptyState message="No orders found" icon="📋" />
       ) : (
-        <FlatList
+        <FlashList
           data={filteredOrders}
-          keyExtractor={(item) => item.id}
+          keyExtractor={item => item.id}
           renderItem={({ item }) => <OrderCard order={item} onPress={onOrderPress} />}
-          contentContainerStyle={styles.list}
         />
       )}
     </View>

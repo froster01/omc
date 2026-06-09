@@ -79,6 +79,30 @@ for endpoint work.
 - Each file starts with a short block comment describing its purpose (match the
   existing style).
 
+## UI components
+
+The app uses a **hybrid** component strategy: React Native Paper for standard
+primitives, custom components for branded/specialized UI.
+
+- **React Native Paper**: wrapped behind existing component APIs so callers are
+  unchanged. `PaperProvider` is set up in `App.tsx` with `customTheme` from
+  `src/theme/paperTheme.ts`, which maps the Stitch tokens (colors, Hanken
+  Grotesk fonts, roundness) onto RNP's `MD3LightTheme`.
+  - `components/common/Button.tsx` wraps RNP `Button`; preserves the 6 variants
+    (`primary`, `secondary`, `tonal`, `danger`, `outline`, `ghost`) by mapping
+    them to RNP modes + token colors.
+  - `components/common/Card.tsx` wraps RNP `Card`/`Surface` (variants:
+    `default`, `outlined`, `elevated`, `tonal`).
+  - `components/common/StatusBadge.tsx` wraps RNP `Chip`.
+- **Kept custom** (branded/specialized, do NOT replace with RNP): `GlassCard`,
+  `NavigationRail`, `TopAppBar`/`OrderDetailAppBar`, `LoginScreen` form,
+  `MenuManagementScreen` search.
+- **Lists**: use `@shopify/flash-list` (`FlashList`) for large/growing lists
+  (orders, shift history). FlashList v2 auto-measures — do NOT pass
+  `estimatedItemSize`. Small/fixed content stays on `ScrollView`.
+- **Icons**: `lucide-react-native` for newer custom UI; `react-native-vector-icons`
+  MaterialCommunityIcons (via `MaterialIcon`) for everything else and RNP.
+
 ## Design system
 
 Sage-green light theme sourced from a Stitch design system (see

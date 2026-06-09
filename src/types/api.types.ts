@@ -162,11 +162,36 @@ export interface Category {
   sortOrder: number;
   asksTemperature: boolean;
   isVisibleInMenu: boolean;
+  items?: Array<{
+    id: string;
+    name: string;
+    isAvailable: boolean;
+  }>;
 }
 
 export interface UpdateCategoryRequest {
   asksTemperature?: boolean;
   isVisibleInMenu?: boolean;
+}
+
+export interface LoyverseSyncStatus {
+  menu: {
+    lastSyncedAt: string | null;
+  };
+  payments: {
+    lastSyncedAt: string | null;
+  };
+}
+
+export interface LoyverseActionResponse {
+  success: boolean;
+  message: string;
+  data?: {
+    lastSyncedAt?: string;
+    categories?: number;
+    items?: number;
+    paymentTypes?: number;
+  };
 }
 
 // Table
@@ -175,8 +200,8 @@ export interface Table {
   number: number;
   name: string | null;
   isActive: boolean;
-  qrCode?: string;  // base64 data URL from backend
-  url?: string;     // customer-facing table URL
+  qrCode?: string; // base64 data URL from backend
+  url?: string; // customer-facing table URL
 }
 
 export interface GenerateTablesRequest {

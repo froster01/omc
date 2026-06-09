@@ -175,7 +175,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ navigation }) 
               <QuickActionTile
                 icon="book-open-outline"
                 label="Menu"
-                onPress={() => navigation.navigate('MenuSync')}
+                onPress={() => navigation.navigate('MenuManagement')}
                 style={{ width: tileWidth }}
               />
               <QuickActionTile
@@ -193,7 +193,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ navigation }) 
               <QuickActionTile
                 icon="plus-circle-outline"
                 label="Add Item"
-                onPress={() => navigation.navigate('MenuSync')}
+                onPress={() => navigation.navigate('MenuManagement')}
                 style={{ width: tileWidth }}
               />
             </View>

@@ -1,10 +1,12 @@
 /**
- * Status Badge Component - Stitch Sage Green Design
+ * Status Badge Component - React Native Paper Chip Wrapper
+ * Preserves Stitch Sage Green Design
  */
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
+import { Chip } from 'react-native-paper';
 import { formatOrderStatus } from '../../utils/formatting';
-import { getStatusColor, SPACING, BORDER_RADIUS, TYPOGRAPHY } from '../../utils/designTokens';
+import { getStatusColor } from '../../utils/designTokens';
 import type { OrderStatus } from '../../types/api.types';
 
 interface StatusBadgeProps {
@@ -29,35 +31,26 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, size = 'medium
   const label = formatOrderStatus(status);
 
   return (
-    <View
-      style={[
-        styles.badge,
-        { backgroundColor: bgColor },
-        size === 'small' && styles.badgeSmall,
-      ]}>
-      <Text style={[styles.text, { color: textColor }, size === 'small' && styles.textSmall]}>
-        {label.toUpperCase()}
-      </Text>
-    </View>
+    <Chip
+      mode="flat"
+      compact={size === 'small'}
+      textStyle={[
+        styles.text,
+        { color: textColor },
+        size === 'small' && styles.textSmall,
+      ]}
+      style={[styles.chip, { backgroundColor: bgColor }]}>
+      {label.toUpperCase()}
+    </Chip>
   );
 };
 
 const styles = StyleSheet.create({
-  badge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: SPACING.md - 2,
-    paddingVertical: 6,
-    borderRadius: BORDER_RADIUS.full,
+  chip: {
     alignSelf: 'flex-start',
   },
-  badgeSmall: {
-    paddingHorizontal: SPACING.sm,
-    paddingVertical: 4,
-  },
   text: {
-    ...TYPOGRAPHY.labelMd,
+    fontSize: 12,
     fontWeight: '600',
     letterSpacing: 0.5,
   },

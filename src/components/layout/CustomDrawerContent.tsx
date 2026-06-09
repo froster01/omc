@@ -34,7 +34,7 @@ const NAV_ITEMS: NavItem[] = [
   { name: 'Orders', label: 'Orders', icon: ShoppingCart },
   { name: 'Shift', label: 'Shift', icon: Clock },
   { name: 'Tables', label: 'Tables', icon: Table2 },
-  { name: 'MenuSync', label: 'Menu', icon: RefreshCw },
+  { name: 'MenuManagement', label: 'Menu', icon: RefreshCw },
   { name: 'ShiftReports', label: 'Reports', icon: BarChart3 },
   { name: 'CashDrawer', label: 'Cash Drawer', icon: Wallet },
 ];

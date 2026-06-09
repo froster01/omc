@@ -107,6 +107,13 @@ export const TYPOGRAPHY = {
     letterSpacing: 0,
     fontFamily: FONT_FAMILY,
   },
+  headlineLgBold: {
+    fontSize: 32,
+    fontWeight: '700' as const,
+    lineHeight: 40,
+    letterSpacing: 0,
+    fontFamily: FONT_FAMILY,
+  },
   headlineMd: {
     fontSize: 28,
     fontWeight: '500' as const,
@@ -114,9 +121,23 @@ export const TYPOGRAPHY = {
     letterSpacing: 0,
     fontFamily: FONT_FAMILY,
   },
+  headlineMdBold: {
+    fontSize: 28,
+    fontWeight: '700' as const,
+    lineHeight: 36,
+    letterSpacing: 0,
+    fontFamily: FONT_FAMILY,
+  },
   titleLg: {
     fontSize: 22,
     fontWeight: '500' as const,
+    lineHeight: 28,
+    letterSpacing: 0,
+    fontFamily: FONT_FAMILY,
+  },
+  titleLgBold: {
+    fontSize: 22,
+    fontWeight: '700' as const,
     lineHeight: 28,
     letterSpacing: 0,
     fontFamily: FONT_FAMILY,
@@ -145,6 +166,13 @@ export const TYPOGRAPHY = {
   labelLg: {
     fontSize: 14,
     fontWeight: '600' as const,
+    lineHeight: 20,
+    letterSpacing: 0,
+    fontFamily: FONT_FAMILY,
+  },
+  labelLgBold: {
+    fontSize: 14,
+    fontWeight: '700' as const,
     lineHeight: 20,
     letterSpacing: 0,
     fontFamily: FONT_FAMILY,
@@ -265,6 +293,10 @@ export const COMPONENT_SIZES = {
     height: 56,
     paddingHorizontal: 16,
     borderRadius: BORDER_RADIUS.md,
+  },
+  switch: {
+    // Compact scaling for tablet landscape (better fit in tables)
+    scale: 0.9,
   },
 } as const;
 

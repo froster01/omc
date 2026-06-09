@@ -18,7 +18,7 @@ export type DrawerParamList = {
   Orders: undefined;
   Shift: undefined;
   Tables: undefined;
-  MenuSync: undefined;
+  MenuManagement: undefined;
   ShiftReports: undefined;
   CashDrawer: undefined;
 };
@@ -56,8 +56,8 @@ export type TablesScreenProps = CompositeScreenProps<
   NativeStackScreenProps<MainStackParamList>
 >;
 
-export type MenuSyncScreenProps = CompositeScreenProps<
-  DrawerScreenProps<DrawerParamList, 'MenuSync'>,
+export type MenuManagementScreenProps = CompositeScreenProps<
+  DrawerScreenProps<DrawerParamList, 'MenuManagement'>,
   NativeStackScreenProps<MainStackParamList>
 >;
 

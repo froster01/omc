@@ -1,16 +1,12 @@
 /**
- * Common Button Component
+ * Common Button Component - React Native Paper Wrapper
+ * Preserves existing 6-variant API while using RNP Button internally
  */
 import React from 'react';
-import {
-  TouchableOpacity,
-  Text,
-  StyleSheet,
-  ActivityIndicator,
-  ViewStyle,
-} from 'react-native';
+import { StyleSheet, ViewStyle } from 'react-native';
+import { Button as PaperButton } from 'react-native-paper';
 import { MaterialIcon } from './MaterialIcon';
-import { COLORS, SPACING, BORDER_RADIUS, TYPOGRAPHY } from '../../utils/designTokens';
+import { COLORS, SPACING, BORDER_RADIUS } from '../../utils/designTokens';
 
 interface ButtonProps {
   title: string;
@@ -23,6 +19,11 @@ interface ButtonProps {
   icon?: string;
 }
 
+// Icon wrapper component defined outside to avoid nested component warning
+const ButtonIcon: React.FC<{ name: string; color: string }> = ({ name, color }) => (
+  <MaterialIcon name={name} size={20} color={color} />
+);
+
 export const Button: React.FC<ButtonProps> = ({
   title,
   onPress,
@@ -33,133 +34,112 @@ export const Button: React.FC<ButtonProps> = ({
   style,
   icon,
 }) => {
-  const iconColor =
-    disabled
-      ? COLORS.textDisabled
-      : variant === 'primary'
-        ? COLORS.onPrimary
-        : variant === 'secondary'
-          ? COLORS.onSecondaryContainer
-          : variant === 'danger'
-            ? COLORS.onError
-            : COLORS.primary;
+  // Map variants to RNP modes
+  const getMode = (): 'text' | 'outlined' | 'contained' | 'elevated' => {
+    switch (variant) {
+      case 'outline':
+        return 'outlined';
+      case 'ghost':
+        return 'text';
+      case 'tonal':
+        return 'elevated';
+      default:
+        return 'contained';
+    }
+  };
 
-  const buttonStyle = [
-    styles.button,
-    styles[`button_${variant}`],
-    styles[`button_${size}`],
-    disabled && styles.buttonDisabled,
-    style,
-  ];
+  // Map variants to button colors
+  const getButtonColor = () => {
+    if (disabled) return undefined;
+    
+    switch (variant) {
+      case 'primary':
+        return COLORS.primary;
+      case 'secondary':
+        return COLORS.secondaryContainer;
+      case 'tonal':
+        return COLORS.surfaceContainerHigh;
+      case 'danger':
+        return COLORS.error;
+      default:
+        return undefined; // Use theme default
+    }
+  };
 
-  const textStyle = [
-    styles.text,
-    styles[`text_${variant}`],
-    styles[`text_${size}`],
-    disabled && styles.textDisabled,
-  ];
+  // Map variants to text colors
+  const getTextColor = () => {
+    if (disabled) return COLORS.textDisabled;
+    
+    switch (variant) {
+      case 'primary':
+        return COLORS.onPrimary;
+      case 'danger':
+        return COLORS.onError;
+      case 'secondary':
+        return COLORS.onSecondaryContainer;
+      case 'tonal':
+      case 'outline':
+      case 'ghost':
+        return COLORS.primary;
+      default:
+        return undefined;
+    }
+  };
+
+  const mode = getMode();
+  const buttonColor = getButtonColor();
+  const textColor = getTextColor();
 
   return (
-    <TouchableOpacity
-      style={buttonStyle}
+    <PaperButton
+      mode={mode}
       onPress={onPress}
-      disabled={disabled || loading}
-      activeOpacity={0.7}>
-      {loading ? (
-        <ActivityIndicator color={variant === 'outline' || variant === 'tonal' || variant === 'ghost' ? COLORS.primary : COLORS.onPrimary} />
-      ) : (
-        <>
-          {icon && (
-            <MaterialIcon
-              name={icon}
-              size={size === 'large' ? 22 : 20}
-              color={iconColor}
-            />
-          )}
-          <Text style={textStyle}>{title}</Text>
-        </>
-      )}
-    </TouchableOpacity>
+      disabled={disabled}
+      loading={loading}
+      buttonColor={buttonColor}
+      textColor={textColor}
+      contentStyle={[
+        styles.content,
+        size === 'small' && styles.contentSmall,
+        size === 'large' && styles.contentLarge,
+      ]}
+      labelStyle={[
+        styles.label,
+        size === 'small' && styles.labelSmall,
+        size === 'large' && styles.labelLarge,
+      ]}
+      style={[styles.button, style]}
+      icon={icon ? () => <ButtonIcon name={icon} color={textColor || COLORS.primary} /> : undefined}
+    >
+      {title}
+    </PaperButton>
   );
 };
 
 const styles = StyleSheet.create({
   button: {
     borderRadius: BORDER_RADIUS.full,
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexDirection: 'row',
-    gap: SPACING.sm,
-    borderWidth: 1,
-    borderColor: 'transparent',
   },
-  button_primary: {
-    backgroundColor: COLORS.primary,
-  },
-  button_secondary: {
-    backgroundColor: COLORS.secondaryContainer,
-  },
-  button_tonal: {
-    backgroundColor: COLORS.surfaceContainerHigh,
-    borderColor: COLORS.outlineVariant,
-  },
-  button_danger: {
-    backgroundColor: COLORS.error,
-  },
-  button_outline: {
-    backgroundColor: 'transparent',
-    borderColor: COLORS.outline,
-  },
-  button_ghost: {
-    backgroundColor: 'transparent',
-  },
-  button_small: {
-    paddingHorizontal: SPACING.md,
+  content: {
     minHeight: SPACING.touchTarget,
-  },
-  button_medium: {
     paddingHorizontal: SPACING.lg,
+  },
+  contentSmall: {
     minHeight: SPACING.touchTarget,
+    paddingHorizontal: SPACING.md,
   },
-  button_large: {
-    paddingHorizontal: SPACING.xl,
+  contentLarge: {
     minHeight: SPACING.touchTargetLg,
+    paddingHorizontal: SPACING.xl,
   },
-  buttonDisabled: {
-    backgroundColor: COLORS.surfaceContainerHighest,
-    borderColor: COLORS.outlineVariant,
+  label: {
+    fontSize: 14,
+    fontWeight: '600',
   },
-  text: {
-    ...TYPOGRAPHY.labelLg,
-  },
-  text_primary: {
-    color: COLORS.onPrimary,
-  },
-  text_secondary: {
-    color: COLORS.onSecondaryContainer,
-  },
-  text_tonal: {
-    color: COLORS.primary,
-  },
-  text_danger: {
-    color: COLORS.onError,
-  },
-  text_outline: {
-    color: COLORS.primary,
-  },
-  text_ghost: {
-    color: COLORS.primary,
-  },
-  text_small: {
+  labelSmall: {
     fontSize: 14,
   },
-  text_medium: {
-    fontSize: 14,
-  },
-  text_large: {
+  labelLarge: {
     fontSize: 16,
-  },
-  textDisabled: {
-    color: COLORS.textDisabled,
   },
 });

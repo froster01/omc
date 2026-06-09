@@ -1,9 +1,11 @@
 /**
- * Common Card Component
+ * Common Card Component - React Native Paper Wrapper
+ * Preserves existing API while using RNP Card/Surface internally
  */
 import React from 'react';
-import { View, StyleSheet, ViewStyle, TouchableOpacity } from 'react-native';
-import { COLORS, SPACING, BORDER_RADIUS } from '../../utils/designTokens';
+import { StyleSheet, ViewStyle } from 'react-native';
+import { Card as PaperCard, Surface } from 'react-native-paper';
+import { SPACING } from '../../utils/designTokens';
 
 interface CardProps {
   children: React.ReactNode;
@@ -18,39 +20,66 @@ export const Card: React.FC<CardProps> = ({
   onPress,
   variant = 'default',
 }) => {
-  const Container = onPress ? TouchableOpacity : View;
+  // Map custom variants to RNP elevation
+  const getElevation = (): 0 | 1 | 2 => {
+    if (variant === 'elevated') return 2;
+    if (variant === 'default') return 1;
+    return 0;
+  };
+
+  if (onPress) {
+    // Outlined mode cannot take an elevation prop (RNP discriminated union)
+    if (variant === 'outlined') {
+      return (
+        <PaperCard
+          mode="outlined"
+          style={[styles.card, style]}
+          onPress={onPress}>
+          <PaperCard.Content style={styles.content}>
+            {children}
+          </PaperCard.Content>
+        </PaperCard>
+      );
+    }
+
+    return (
+      <PaperCard
+        mode="elevated"
+        elevation={getElevation()}
+        style={[styles.card, style]}
+        onPress={onPress}>
+        <PaperCard.Content style={styles.content}>
+          {children}
+        </PaperCard.Content>
+      </PaperCard>
+    );
+  }
 
   return (
-    <Container
-      style={[styles.card, styles[`card_${variant}`], style]}
-      onPress={onPress}
-      activeOpacity={onPress ? 0.7 : 1}>
+    <Surface
+      elevation={getElevation()}
+      style={[
+        styles.card,
+        variant === 'outlined' && styles.outlined,
+        variant === 'tonal' && styles.tonal,
+        style,
+      ]}>
       {children}
-    </Container>
+    </Surface>
   );
 };
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: COLORS.surfaceContainerLow,
-    borderRadius: BORDER_RADIUS.md,
     padding: SPACING.cardPadding,
+  },
+  content: {
+    padding: 0,
+  },
+  outlined: {
     borderWidth: 1,
-    borderColor: COLORS.outlineVariant,
   },
-  card_default: {},
-  card_outlined: {
-    backgroundColor: COLORS.surface,
-  },
-  card_tonal: {
-    backgroundColor: COLORS.surfaceContainer,
-  },
-  card_elevated: {
-    backgroundColor: COLORS.surfaceContainerLowest,
-    shadowColor: COLORS.shadow,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 4,
+  tonal: {
+    // Tonal uses theme elevation colors automatically
   },
 });

@@ -2,7 +2,8 @@
  * Shift Reports Screen
  */
 import React from 'react';
-import { View, Text, StyleSheet, FlatList } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
+import { FlashList } from '@shopify/flash-list';
 import { Card } from '../../components/common/Card';
 import { LoadingSpinner } from '../../components/common/LoadingSpinner';
 import { EmptyState } from '../../components/common/EmptyState';
@@ -24,9 +25,9 @@ export const ShiftReportsScreen: React.FC<ShiftReportsScreenProps> = ({ navigati
 
   return (
     <View style={styles.container}>
-      <FlatList
+      <FlashList
         data={shifts}
-        keyExtractor={(item) => item.id}
+        keyExtractor={item => item.id}
         renderItem={({ item }) => (
           <Card
             onPress={() => navigation.navigate('ShiftReportDetail', { shiftId: item.id })}

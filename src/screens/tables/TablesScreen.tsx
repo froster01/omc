@@ -12,9 +12,10 @@ import {
   Alert,
   Image,
   ActivityIndicator,
+  Modal,
 } from 'react-native';
+import { RefreshCw, Download, QrCode, Minus, Plus } from 'lucide-react-native';
 import { Card } from '../../components/common/Card';
-import { MaterialIcon } from '../../components/common/MaterialIcon';
 import { COLORS, SPACING, BORDER_RADIUS } from '../../utils/designTokens';
 import { tablesApi } from '../../api/tables.api';
 import type { Table } from '../../types/api.types';
@@ -24,18 +25,12 @@ export const TablesScreen = () => {
   const [tables, setTables] = useState<Table[]>([]);
   const [loading, setLoading] = useState(true);
   const [generatingQR, setGeneratingQR] = useState(false);
-  const [hasQRCodes, setHasQRCodes] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
   // Load tables on mount
   useEffect(() => {
     loadTables();
   }, []);
-
-  // Check if QR codes exist
-  useEffect(() => {
-    const hasQR = tables.some(t => t.qrCode);
-    setHasQRCodes(hasQR);
-  }, [tables]);
 
   /**
    * Load tables - try with QR first, fallback to without
@@ -77,6 +72,7 @@ export const TablesScreen = () => {
       setTables(data.tables);
       
       Alert.alert('Success', `Generated QR codes for ${tableCount} tables`);
+      setIsModalVisible(false); // Close modal on success
     } catch (error) {
       Alert.alert('Error', 'Failed to generate QR codes');
       console.error('Generate QR error:', error);
@@ -120,87 +116,34 @@ export const TablesScreen = () => {
         </View>
       ) : (
         <ScrollView contentContainerStyle={styles.content}>
-          {/* Header Section */}
-          <View style={styles.header}>
-            <View>
-              <Text style={styles.title}>Tables & QR Codes</Text>
-              <Text style={styles.subtitle}>
-                {hasQRCodes 
-                  ? 'Scan, download, or regenerate QR codes for each table.'
-                  : 'Generate QR codes to enable table ordering.'
-                }
+          {/* Control Row */}
+          <View style={styles.controlRow}>
+            <View style={styles.statusChip}>
+              <View style={styles.statusPulse} />
+              <Text style={styles.statusText}>
+                {tables.length} tables • {activeTablesCount} active
               </Text>
             </View>
+
+            <Pressable
+              style={({ pressed }) => [
+                styles.generateButton,
+                pressed && styles.buttonPressed,
+              ]}
+              onPress={() => setIsModalVisible(true)}
+            >
+              <RefreshCw size={16} color={COLORS.onPrimary} strokeWidth={2} />
+              <Text style={styles.generateButtonText}>Generate QR</Text>
+            </Pressable>
           </View>
-
-          {/* Control Row */}
-          <Card style={styles.controlCard}>
-            <View style={styles.controlRow}>
-              <View style={styles.controlLeft}>
-                {/* Table Count Input */}
-                <View style={styles.tableCountControl}>
-                  <Text style={styles.tableCountLabel}>TABLE COUNT</Text>
-                  <View style={styles.tableCountInput}>
-                    <Pressable
-                      style={({ pressed }) => [
-                        styles.counterButton,
-                        pressed && styles.buttonPressed,
-                      ]}
-                      onPress={() => setTableCount(Math.max(1, tableCount - 1))}
-                    >
-                      <MaterialIcon name="remove" size={16} color={COLORS.primary} />
-                    </Pressable>
-                    <Text style={styles.counterValue}>{tableCount}</Text>
-                    <Pressable
-                      style={({ pressed }) => [
-                        styles.counterButton,
-                        pressed && styles.buttonPressed,
-                      ]}
-                      onPress={() => setTableCount(Math.min(50, tableCount + 1))}
-                    >
-                      <MaterialIcon name="add" size={16} color={COLORS.primary} />
-                    </Pressable>
-                  </View>
-                </View>
-
-                {/* Status Chip */}
-                <View style={styles.statusChip}>
-                  <View style={styles.statusPulse} />
-                  <Text style={styles.statusText}>
-                    {tables.length} tables • {activeTablesCount} active
-                  </Text>
-                </View>
-              </View>
-
-              {/* Generate Button */}
-              <Pressable
-                style={({ pressed }) => [
-                  styles.generateButton,
-                  pressed && styles.buttonPressed,
-                  generatingQR && styles.buttonDisabled,
-                ]}
-                onPress={handleGenerateQR}
-                disabled={generatingQR}
-              >
-                {generatingQR ? (
-                  <ActivityIndicator size="small" color={COLORS.onPrimary} />
-                ) : (
-                  <MaterialIcon name="sync" size={18} color={COLORS.onPrimary} />
-                )}
-                <Text style={styles.generateButtonText}>
-                  {generatingQR ? 'Generating...' : 'Generate QR Codes'}
-                </Text>
-              </Pressable>
-            </View>
-          </Card>
 
           {/* Empty State */}
           {tables.length === 0 ? (
             <View style={styles.emptyState}>
-              <MaterialIcon name="qr_code_scanner" size={64} color={COLORS.outline} />
+              <QrCode size={64} color={COLORS.outline} strokeWidth={2} />
               <Text style={styles.emptyStateTitle}>No Tables Yet</Text>
               <Text style={styles.emptyStateText}>
-                Set the table count above and click "Generate QR Codes" to get started.
+                Click "Generate QR" to create tables and their QR codes.
               </Text>
             </View>
           ) : (
@@ -240,10 +183,10 @@ export const TablesScreen = () => {
                           />
                         ) : (
                           <View style={styles.qrCodePlaceholder}>
-                            <MaterialIcon
-                              name="qr_code_2"
+                            <QrCode
                               size={32}
                               color={COLORS.outline}
+                              strokeWidth={2}
                             />
                           </View>
                         )}
@@ -264,7 +207,7 @@ export const TablesScreen = () => {
                         ]}
                         onPress={() => handleDownloadPNG(table)}
                       >
-                        <MaterialIcon name="download" size={14} color={COLORS.primary} />
+                        <Download size={12} color={COLORS.primary} strokeWidth={2} />
                         <Text style={styles.downloadButtonText}>PNG Download</Text>
                       </Pressable>
                     )}
@@ -275,6 +218,85 @@ export const TablesScreen = () => {
           )}
         </ScrollView>
       )}
+
+      {/* QR Generation Modal */}
+      <Modal
+        visible={isModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setIsModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            {/* Modal Header */}
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Generate QR Codes</Text>
+              <Text style={styles.modalSubtitle}>
+                Specify how many table QR codes to generate
+              </Text>
+            </View>
+
+            {/* Table Count Input */}
+            <View style={styles.modalBody}>
+              <Text style={styles.tableCountLabel}>TABLE COUNT</Text>
+              <View style={styles.tableCountInput}>
+                <Pressable
+                  style={({ pressed }) => [
+                    styles.counterButton,
+                    pressed && styles.buttonPressed,
+                  ]}
+                  onPress={() => setTableCount(Math.max(1, tableCount - 1))}
+                  disabled={generatingQR}
+                >
+                  <Minus size={16} color={COLORS.primary} strokeWidth={2} />
+                </Pressable>
+                <Text style={styles.counterValue}>{tableCount}</Text>
+                <Pressable
+                  style={({ pressed }) => [
+                    styles.counterButton,
+                    pressed && styles.buttonPressed,
+                  ]}
+                  onPress={() => setTableCount(Math.min(50, tableCount + 1))}
+                  disabled={generatingQR}
+                >
+                  <Plus size={16} color={COLORS.primary} strokeWidth={2} />
+                </Pressable>
+              </View>
+            </View>
+
+            {/* Modal Actions */}
+            <View style={styles.modalActions}>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.modalButton,
+                  styles.cancelButton,
+                  pressed && styles.buttonPressed,
+                ]}
+                onPress={() => setIsModalVisible(false)}
+                disabled={generatingQR}
+              >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </Pressable>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.modalButton,
+                  styles.confirmButton,
+                  pressed && styles.buttonPressed,
+                  generatingQR && styles.buttonDisabled,
+                ]}
+                onPress={handleGenerateQR}
+                disabled={generatingQR}
+              >
+                {generatingQR ? (
+                  <ActivityIndicator size="small" color={COLORS.onPrimary} />
+                ) : (
+                  <Text style={styles.confirmButtonText}>Generate</Text>
+                )}
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -300,79 +322,48 @@ const styles = StyleSheet.create({
   
   // Content
   content: {
-    padding: SPACING.md,        // 16px (was 32px)
+    padding: SPACING.md,
     paddingBottom: 80,
   },
-  
-  // Header Section - Compact
-  header: {
-    marginBottom: SPACING.md,   // 16px (was 32px)
-  },
-  title: {
-    fontSize: 24,               // was 32px (-25%)
-    fontWeight: '700',          // was '900'
-    color: COLORS.text,
-    marginBottom: SPACING.xs,   // 4px
-  },
-  subtitle: {
-    fontSize: 13,               // was 16px (-19%)
-    color: COLORS.textSecondary,
-    lineHeight: 18,
-  },
-  
-  // Control Card - Modern & Clean
-  controlCard: {
-    marginBottom: SPACING.md,   // 16px
-    padding: SPACING.md,        // 16px (was 24px)
-    backgroundColor: COLORS.surface,
-    borderWidth: 1,
-    borderColor: COLORS.outlineVariant,
-  },
+
   controlRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    gap: SPACING.md,
-  },
-  controlLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: SPACING.md,
-    flex: 1,
+    marginBottom: SPACING.md,
   },
   
-  // Table Count Control - Compact
-  tableCountControl: {
-    gap: 4,
-  },
+  // Table Count Control - Compact (now in modal)
   tableCountLabel: {
-    fontSize: 8,                // was 10px
+    fontSize: 10,
     fontWeight: '700',
     color: COLORS.textSecondary,
     letterSpacing: 1,
     textTransform: 'uppercase',
+    marginBottom: SPACING.xs,
   },
   tableCountInput: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: COLORS.surfaceContainerLow,
     borderWidth: 1,
     borderColor: COLORS.outline,
-    borderRadius: BORDER_RADIUS.sm,  // 8px
-    paddingHorizontal: 4,
-    paddingVertical: 4,
+    borderRadius: BORDER_RADIUS.sm,
+    paddingHorizontal: 8,
+    paddingVertical: 8,
   },
   counterButton: {
-    width: 28,                  // was 32px
-    height: 28,
+    width: 32,
+    height: 32,
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: BORDER_RADIUS.xs,
   },
   counterValue: {
-    width: 40,                  // was 48px
+    width: 60,
     textAlign: 'center',
-    fontSize: 16,               // was 18px
+    fontSize: 20,
     fontWeight: '700',
     color: COLORS.text,
   },
@@ -381,22 +372,22 @@ const styles = StyleSheet.create({
   statusChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: SPACING.xs,            // 4px
+    gap: SPACING.xs,
     backgroundColor: `${COLORS.primary}0D`,
     borderWidth: 1,
     borderColor: `${COLORS.primary}33`,
-    paddingHorizontal: 10,      // was 16px
-    paddingVertical: 6,         // was 10px
+    paddingHorizontal: 10,
+    paddingVertical: 6,
     borderRadius: BORDER_RADIUS.md,
   },
   statusPulse: {
-    width: 6,                   // was 8px
+    width: 6,
     height: 6,
     borderRadius: 3,
     backgroundColor: COLORS.tertiary,
   },
   statusText: {
-    fontSize: 12,               // was 14px
+    fontSize: 12,
     fontWeight: '600',
     color: COLORS.tertiary,
   },
@@ -405,10 +396,10 @@ const styles = StyleSheet.create({
   generateButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: SPACING.xs,            // 4px
+    gap: SPACING.xs,
     backgroundColor: COLORS.primary,
-    paddingHorizontal: SPACING.md,  // 16px (was 24px)
-    paddingVertical: 8,         // was 12px
+    paddingHorizontal: SPACING.md,
+    paddingVertical: 8,
     borderRadius: BORDER_RADIUS.md,
     shadowColor: COLORS.primary,
     shadowOffset: { width: 0, height: 2 },
@@ -417,7 +408,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   generateButtonText: {
-    fontSize: 13,               // was 16px
+    fontSize: 13,
     fontWeight: '600',
     color: COLORS.onPrimary,
   },
@@ -449,46 +440,41 @@ const styles = StyleSheet.create({
   tableGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 12,                    // was 24px (-50%)
+    gap: SPACING.sm,
   },
   tableCard: {
-    width: 'calc(25% - 9px)',   // 4 columns with 12px gaps
-    minWidth: 220,              // was 250px
+    width: '19.2%',
+    minWidth: 160,
   },
   
   // Card - Ultra Compact
   card: {
-    padding: 14,                // was 24px (-42%)
-    borderRadius: BORDER_RADIUS.md,  // 12px (was 16/24)
+    padding: SPACING.sm + 2,
+    borderRadius: BORDER_RADIUS.md,
     borderWidth: 1,
     borderColor: COLORS.outlineVariant,
     backgroundColor: COLORS.surface,
-    shadowColor: COLORS.shadow,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,        // was 0.08
-    shadowRadius: 2,            // was 4
     elevation: 1,
   },
-  
-  // Card Header - Compact
+
   cardHeader: {
-    marginBottom: SPACING.sm,   // 8px (was 24px)
+    marginBottom: SPACING.xs,
   },
   tableInfo: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: SPACING.sm,            // 8px (was 16px)
+    gap: SPACING.xs + 2,
   },
   tableNumberCircle: {
-    width: 36,                  // was 48px (-25%)
-    height: 36,
-    borderRadius: 18,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     backgroundColor: COLORS.primary,
     justifyContent: 'center',
     alignItems: 'center',
   },
   tableNumber: {
-    fontSize: 14,               // was 18px (-22%)
+    fontSize: 13,
     fontWeight: '700',
     color: COLORS.onPrimary,
   },
@@ -496,49 +482,48 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   tableName: {
-    fontSize: 13,               // was 16px (-19%)
+    fontSize: 12,
     fontWeight: '600',
     color: COLORS.text,
-    marginBottom: 2,
+    marginBottom: 1,
   },
   statusBadge: {
     backgroundColor: `${COLORS.tertiary}15`,
-    paddingHorizontal: 6,       // was 8px
-    paddingVertical: 1,         // was 2px
+    paddingHorizontal: 5,
+    paddingVertical: 1,
     borderRadius: BORDER_RADIUS.full,
     alignSelf: 'flex-start',
   },
   statusBadgeText: {
-    fontSize: 8,                // was 10px (-20%)
+    fontSize: 7,
     fontWeight: '700',
     color: COLORS.tertiary,
     letterSpacing: 0.5,
   },
-  
-  // QR Code Section - Compact
+
   qrSection: {
     alignItems: 'center',
-    paddingVertical: 10,        // was 16px (-38%)
+    paddingVertical: SPACING.xs + 2,
     backgroundColor: COLORS.background,
     borderRadius: BORDER_RADIUS.sm,
-    marginBottom: SPACING.sm,   // 8px (was 24px)
+    marginBottom: SPACING.xs,
   },
   qrCodeLabel: {
-    fontSize: 8,                // was 10px (-20%)
+    fontSize: 7,
     fontWeight: '700',
     color: COLORS.secondary,
     letterSpacing: 1,
-    marginBottom: 6,            // was 8px
+    marginBottom: 4,
   },
   qrCodeContainer: {
-    width: 90,                  // was 128px (-30%)
-    height: 90,
+    width: 72,
+    height: 72,
     backgroundColor: COLORS.surface,
-    padding: 6,                 // was 12px
+    padding: 4,
     borderRadius: BORDER_RADIUS.sm,
     borderWidth: 1,
     borderColor: COLORS.outlineVariant,
-    marginBottom: 6,            // was 12px
+    marginBottom: 4,
   },
   qrCodeImage: {
     width: '100%',
@@ -552,26 +537,25 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   qrUrl: {
-    fontSize: 9,                // was 11px (-18%)
+    fontSize: 8,
     fontWeight: '500',
     color: COLORS.textSecondary,
     fontFamily: 'monospace',
   },
-  
-  // Download Button - Single Action
+
   downloadButton: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 6,                     // was 8px
+    gap: 4,
     borderWidth: 1,
     borderColor: COLORS.outline,
     borderRadius: BORDER_RADIUS.sm,
-    paddingVertical: 8,         // was 10px
+    paddingVertical: 6,
     backgroundColor: `${COLORS.primary}0A`,
   },
   downloadButtonText: {
-    fontSize: 11,               // was 12px
+    fontSize: 10,
     fontWeight: '600',
     color: COLORS.primary,
   },
@@ -580,5 +564,80 @@ const styles = StyleSheet.create({
   buttonPressed: {
     transform: [{ scale: 0.97 }],
     opacity: 0.8,
+  },
+  
+  // Modal Styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: SPACING.lg,
+  },
+  modalContent: {
+    backgroundColor: COLORS.surface,
+    borderRadius: BORDER_RADIUS.lg,
+    padding: SPACING.xl,
+    width: '100%',
+    maxWidth: 400,
+    shadowColor: COLORS.shadow,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.2,
+    shadowRadius: 16,
+    elevation: 8,
+  },
+  modalHeader: {
+    marginBottom: SPACING.lg,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: COLORS.text,
+    marginBottom: SPACING.xs,
+  },
+  modalSubtitle: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
+    lineHeight: 20,
+  },
+  modalBody: {
+    alignItems: 'center',
+    marginBottom: SPACING.lg,
+  },
+  modalActions: {
+    flexDirection: 'row',
+    gap: SPACING.md,
+  },
+  modalButton: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: SPACING.md,
+    borderRadius: BORDER_RADIUS.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 48,
+  },
+  cancelButton: {
+    backgroundColor: COLORS.surfaceContainerLow,
+    borderWidth: 1,
+    borderColor: COLORS.outline,
+  },
+  cancelButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: COLORS.text,
+  },
+  confirmButton: {
+    backgroundColor: COLORS.primary,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  confirmButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: COLORS.onPrimary,
   },
 });

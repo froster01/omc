@@ -19,7 +19,7 @@ import { PaymentScreen } from '../screens/orders/PaymentScreen';
 import { ShiftScreen } from '../screens/shifts/ShiftScreen';
 import { ShiftReportsScreen } from '../screens/shifts/ShiftReportsScreen';
 import { ShiftReportDetailScreen } from '../screens/shifts/ShiftReportDetailScreen';
-import { MenuSyncScreen } from '../screens/menu/MenuSyncScreen';
+import { MenuManagementScreen } from '../screens/menu/MenuManagementScreen';
 import { TablesScreen } from '../screens/tables/TablesScreen';
 import { CashDrawerScreen } from '../screens/shifts/CashDrawerScreen';
 
@@ -42,7 +42,7 @@ const DRAWER_SCREENS: { name: keyof DrawerParamList; component: React.FC<any> }[
   { name: 'Orders', component: OrdersScreen },
   { name: 'Shift', component: ShiftScreen },
   { name: 'Tables', component: TablesScreen },
-  { name: 'MenuSync', component: MenuSyncScreen },
+  { name: 'MenuManagement', component: MenuManagementScreen },
   { name: 'ShiftReports', component: ShiftReportsScreen },
   { name: 'CashDrawer', component: CashDrawerScreen },
 ];
