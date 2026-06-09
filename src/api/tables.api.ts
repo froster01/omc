@@ -23,4 +23,26 @@ export const tablesApi = {
     );
     return data;
   },
+
+  /**
+   * Get QR code for a specific table
+   */
+  getTableQR: async (code: string): Promise<{ 
+    table: Table; 
+    qrCode: string; 
+    url: string 
+  }> => {
+    const { data } = await apiClient.get(`/tables/${code}/qr`);
+    return data;
+  },
+
+  /**
+   * Get QR codes for all tables in bulk
+   */
+  getBulkQR: async (): Promise<{ 
+    tables: Array<Table & { qrCode: string; url: string }> 
+  }> => {
+    const { data } = await apiClient.get('/tables/qr/bulk');
+    return data;
+  },
 };

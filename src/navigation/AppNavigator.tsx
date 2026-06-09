@@ -1,14 +1,15 @@
 /**
- * App Navigator - Main navigation setup
+ * App Navigator - Main navigation setup with toggleable back drawer
  */
 import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
+import { createDrawerNavigator } from '@react-navigation/drawer';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { useAuth } from '../hooks/useAuth';
 import { COLORS } from '../utils/constants';
+import { CustomDrawerContent } from '../components/layout/CustomDrawerContent';
+import { CustomHeader } from '../components/layout/CustomHeader';
 
-// Screens
 import { LoginScreen } from '../screens/auth/LoginScreen';
 import { DashboardScreen } from '../screens/dashboard/DashboardScreen';
 import { OrdersScreen } from '../screens/orders/OrdersScreen';
@@ -21,15 +22,91 @@ import { MenuSyncScreen } from '../screens/menu/MenuSyncScreen';
 import { TablesScreen } from '../screens/tables/TablesScreen';
 import { CashDrawerScreen } from '../screens/shifts/CashDrawerScreen';
 
-import type { RootStackParamList } from '../types/navigation.types';
+import type {
+  AuthStackParamList,
+  DrawerParamList,
+  MainStackParamList,
+} from '../types/navigation.types';
 
-const Stack = createNativeStackNavigator<RootStackParamList>();
+const Drawer = createDrawerNavigator<DrawerParamList>();
+const Stack = createNativeStackNavigator<MainStackParamList & DrawerParamList>();
+const AuthStack = createNativeStackNavigator<AuthStackParamList>();
+
+const drawerContent = (props: any) => <CustomDrawerContent {...props} />;
+
+const customHeader = ({ route }: { route: { name: string } }) => <CustomHeader title={route.name} />;
+
+const DRAWER_SCREENS: { name: keyof DrawerParamList; component: React.FC<any> }[] = [
+  { name: 'Dashboard', component: DashboardScreen },
+  { name: 'Orders', component: OrdersScreen },
+  { name: 'Shift', component: ShiftScreen },
+  { name: 'Tables', component: TablesScreen },
+  { name: 'MenuSync', component: MenuSyncScreen },
+  { name: 'ShiftReports', component: ShiftReportsScreen },
+  { name: 'CashDrawer', component: CashDrawerScreen },
+];
+
+const MainDrawer = () => {
+  return (
+    <Drawer.Navigator
+      drawerContent={drawerContent}
+      screenOptions={{
+        drawerType: 'back',
+        drawerStyle: {
+          width: 200,
+        },
+        headerShown: true,
+        header: customHeader,
+      }}>
+      {DRAWER_SCREENS.map(({ name, component }) => (
+        <Drawer.Screen key={name} name={name} component={component} />
+      ))}
+    </Drawer.Navigator>
+  );
+};
+
+const MainStack = () => {
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: COLORS.primary,
+        },
+        headerTintColor: '#FFFFFF',
+        headerTitleStyle: {
+          fontWeight: 'bold',
+        },
+      }}>
+      <Stack.Screen
+        name="MainDrawer"
+        component={MainDrawer}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="OrderDetail"
+        component={OrderDetailScreen}
+        options={{ title: 'Order Detail' }}
+      />
+      <Stack.Screen
+        name="Payment"
+        component={PaymentScreen}
+        options={{ title: 'Record Payment' }}
+      />
+      <Stack.Screen
+        name="ShiftReportDetail"
+        component={ShiftReportDetailScreen}
+        options={{ title: 'Shift Report' }}
+      />
+    </Stack.Navigator>
+  );
+};
 
 export const AppNavigator = () => {
-  const { isAuthenticated, isLoading, checkAuth, logout } = useAuth();
+  const { isAuthenticated, isLoading, checkAuth } = useAuth();
 
   useEffect(() => {
     checkAuth();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (isLoading) {
@@ -38,96 +115,17 @@ export const AppNavigator = () => {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator
-        screenOptions={{
-          headerStyle: {
-            backgroundColor: COLORS.primary,
-          },
-          headerTintColor: '#FFFFFF',
-          headerTitleStyle: {
-            fontWeight: 'bold',
-          },
-        }}>
-        {!isAuthenticated ? (
-          <Stack.Screen
+      {!isAuthenticated ? (
+        <AuthStack.Navigator>
+          <AuthStack.Screen
             name="Login"
             component={LoginScreen}
             options={{ headerShown: false }}
           />
-        ) : (
-          <>
-            <Stack.Screen
-              name="Dashboard"
-              component={DashboardScreen}
-              options={({ navigation }) => ({
-                title: 'Staff Dashboard',
-                headerRight: () => (
-                  <TouchableOpacity onPress={logout} style={styles.logoutButton}>
-                    <Text style={styles.logoutText}>Logout</Text>
-                  </TouchableOpacity>
-                ),
-              })}
-            />
-            <Stack.Screen
-              name="Orders"
-              component={OrdersScreen}
-              options={{ title: 'Orders' }}
-            />
-            <Stack.Screen
-              name="OrderDetail"
-              component={OrderDetailScreen}
-              options={{ title: 'Order Detail' }}
-            />
-            <Stack.Screen
-              name="Payment"
-              component={PaymentScreen}
-              options={{ title: 'Record Payment' }}
-            />
-            <Stack.Screen
-              name="Shift"
-              component={ShiftScreen}
-              options={{ title: 'Shift Management' }}
-            />
-            <Stack.Screen
-              name="ShiftReports"
-              component={ShiftReportsScreen}
-              options={{ title: 'Shift Reports' }}
-            />
-            <Stack.Screen
-              name="ShiftReportDetail"
-              component={ShiftReportDetailScreen}
-              options={{ title: 'Shift Report' }}
-            />
-            <Stack.Screen
-              name="MenuSync"
-              component={MenuSyncScreen}
-              options={{ title: 'Menu Sync' }}
-            />
-            <Stack.Screen
-              name="Tables"
-              component={TablesScreen}
-              options={{ title: 'Tables' }}
-            />
-            <Stack.Screen
-              name="CashDrawer"
-              component={CashDrawerScreen}
-              options={{ title: 'Cash Drawer' }}
-            />
-          </>
-        )}
-      </Stack.Navigator>
+        </AuthStack.Navigator>
+      ) : (
+        <MainStack />
+      )}
     </NavigationContainer>
   );
 };
-
-const styles = StyleSheet.create({
-  logoutButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-  },
-  logoutText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-});

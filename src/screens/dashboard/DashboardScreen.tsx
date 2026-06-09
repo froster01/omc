@@ -1,123 +1,204 @@
 /**
- * Dashboard Screen - Stitch Sage Green Design
+ * Dashboard Screen - Staff command center with sidebar layout
+ * Matches screenshot design with stat cards, sales chart, top items, recent orders, quick actions
  */
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
-  TouchableOpacity,
-  Pressable,
+  useWindowDimensions,
 } from 'react-native';
-import { Card } from '../../components/common/Card';
-import { MetricCard } from '../../components/dashboard/MetricCard';
-import { MaterialIcon } from '../../components/common/MaterialIcon';
-import { useShift } from '../../hooks/useShift';
 import { useOrders } from '../../hooks/useOrders';
-import { formatCurrency } from '../../utils/formatting';
 import { COLORS, SPACING, BORDER_RADIUS, TYPOGRAPHY, getShadowStyle } from '../../utils/designTokens';
 import type { DashboardScreenProps } from '../../types/navigation.types';
 
+// Dashboard components
+import { StatCard } from '../../components/dashboard/StatCard';
+import { SalesChart } from '../../components/dashboard/SalesChart';
+import { TopSellingItem } from '../../components/dashboard/TopSellingItem';
+import { RecentOrderRow } from '../../components/dashboard/RecentOrderRow';
+import { QuickActionTile } from '../../components/dashboard/QuickActionTile';
+
+// Mock data
+import {
+  getMockSalesData,
+  getMockTopSellingItems,
+  getMockRecentOrders,
+  calculateTotalSales,
+} from '../../utils/mockDashboardData';
+
 export const DashboardScreen: React.FC<DashboardScreenProps> = ({ navigation }) => {
-  const { currentShift } = useShift();
   const { orders } = useOrders();
+  const { width: screenWidth } = useWindowDimensions();
 
-  const pendingOrders = orders.filter((o) => o.status === 'PENDING').length;
-  const preparingOrders = orders.filter((o) => o.status === 'PREPARING').length;
-  const doneOrders = orders.filter((o) => o.status === 'DONE').length;
+  // Compute order stats from live data
+  const stats = useMemo(() => {
+    const pending = orders.filter(o => o.status === 'PENDING').length;
+    const awaitingPayment = orders.filter(o => o.status === 'AWAITING_PAYMENT').length;
+    const preparing = orders.filter(o => o.status === 'PREPARING' || o.status === 'ACCEPTED').length;
+    const doneToday = orders.filter(o => 
+      o.status === 'DONE' || 
+      o.status.startsWith('PAID')
+    ).length;
+    
+    return { pending, awaitingPayment, preparing, doneToday };
+  }, [orders]);
 
-  const menuItems = [
-    { title: 'Orders', screen: 'Orders', icon: 'cart' },
-    { title: 'Shift Management', screen: 'Shift', icon: 'clock-outline' },
-    { title: 'Menu Sync', screen: 'MenuSync', icon: 'sync' },
-    { title: 'Tables & QR', screen: 'Tables', icon: 'table-furniture' },
-    { title: 'Reports', screen: 'ShiftReports', icon: 'chart-bar' },
-    { title: 'Settings', screen: 'CashDrawer', icon: 'cog' },
-  ];
+  const greeting = useMemo(() => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good morning';
+    if (hour < 17) return 'Good afternoon';
+    return 'Good evening';
+  }, []);
+
+  // Mock data
+  const salesData = getMockSalesData();
+  const totalSales = calculateTotalSales(salesData);
+  const topItems = getMockTopSellingItems();
+  const recentOrders = getMockRecentOrders();
+
+  // Layout calculations
+  const contentWidth = screenWidth - (SPACING.md * 2);
+  const leftColumnWidth = contentWidth * 0.65;
+  const rightColumnWidth = contentWidth * 0.35 - SPACING.md;
+  
+  const tileWidth = (rightColumnWidth - 32 - (SPACING.sm * 2)) / 3;
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      {/* Current Shift Status Card */}
-      {currentShift && (
-        <View style={styles.shiftCard}>
-          <View style={styles.shiftContent}>
-            <View style={styles.shiftLeft}>
-              <View style={styles.iconCircle}>
-                <MaterialIcon name="clock-outline" size={28} color={COLORS.primary} />
-              </View>
-              <View>
-                <Text style={styles.shiftTitle}>Shift Opened at 8:00 AM</Text>
-                <Text style={styles.shiftSubtitle}>Station: Front Counter #1</Text>
-              </View>
+      {/* Greeting Header */}
+      <View style={styles.header}>
+        <Text style={styles.greeting}>{greeting}, Barista 👋</Text>
+        <Text style={styles.subtitle}>Here's what's happening at Olmosq Coffee today.</Text>
+      </View>
+
+      {/* 4 Stat Cards */}
+      <View style={styles.statCardsRow}>
+        <StatCard
+          icon="clipboard-list-outline"
+          iconColor={COLORS.primary}
+          iconBgColor={`${COLORS.primary}1F`}
+          value={stats.pending}
+          label="Pending Orders"
+          trend={{ value: '20% vs yesterday', isPositive: true }}
+        />
+        <StatCard
+          icon="wallet-outline"
+          iconColor={COLORS.warning}
+          iconBgColor={`${COLORS.warning}1F`}
+          value={stats.awaitingPayment}
+          label="Awaiting Payment"
+          trend={{ value: '14% vs yesterday', isPositive: true }}
+        />
+        <StatCard
+          icon="coffee-maker"
+          iconColor="#2196F3"
+          iconBgColor="#2196F31F"
+          value={stats.preparing}
+          label="Preparing"
+          trend={{ value: '10% vs yesterday', isPositive: true }}
+        />
+        <StatCard
+          icon="check-circle"
+          iconColor={COLORS.success}
+          iconBgColor={`${COLORS.success}1F`}
+          value={stats.doneToday}
+          label="Completed Today"
+          trend={{ value: '27% vs yesterday', isPositive: true }}
+        />
+      </View>
+
+      {/* Two-column layout */}
+      <View style={styles.twoColumnRow}>
+        {/* Left column: Sales Overview + Recent Orders */}
+        <View style={[styles.leftColumn, { width: leftColumnWidth }]}>
+           <SalesChart data={salesData} total={totalSales} chartWidth={leftColumnWidth - 32} />
+
+          <View style={styles.recentOrdersCard}>
+            <View style={styles.cardHeader}>
+              <Text style={styles.cardTitle}>Recent Orders</Text>
+              <Text style={styles.viewAllLink}>View all</Text>
             </View>
-            <View style={styles.shiftRight}>
-              <View style={styles.cashDisplay}>
-                <Text style={styles.cashLabel}>STARTING CASH</Text>
-                <Text style={styles.cashValue}>
-                  {formatCurrency(currentShift.startingCash)}
-                </Text>
-              </View>
-              <Pressable
-                style={({ pressed }) => [
-                  styles.manageButton,
-                  pressed && styles.buttonPressed,
-                ]}
-                onPress={() => navigation.navigate('Shift')}>
-                <Text style={styles.manageButtonText}>Manage Shift</Text>
-              </Pressable>
+            {recentOrders.map((order) => (
+              <RecentOrderRow
+                key={order.orderNumber}
+                orderNumber={order.orderNumber}
+                customerName={order.customerName}
+                status={order.status}
+                amount={order.amount}
+                onPress={() => {
+                  // Navigate to order detail if orderId available
+                  // For now, just navigate to Orders screen
+                  navigation.navigate('Orders');
+                }}
+              />
+            ))}
+          </View>
+        </View>
+
+        {/* Right column: Top Selling Items + Quick Actions */}
+        <View style={[styles.rightColumn, { width: rightColumnWidth }]}>
+          <View style={styles.topItemsCard}>
+            <View style={styles.cardHeader}>
+              <Text style={styles.cardTitle}>Top Selling Items</Text>
+              <Text style={styles.viewAllLink}>View all</Text>
+            </View>
+            {topItems.map((item, index) => (
+              <TopSellingItem
+                key={item.id}
+                rank={index + 1}
+                name={item.name}
+                soldCount={item.soldCount}
+                icon={item.icon}
+                color={item.color}
+              />
+            ))}
+          </View>
+
+          <View style={styles.quickActionsCard}>
+            <Text style={styles.cardTitle}>Quick Actions</Text>
+            <View style={styles.quickActionsGrid}>
+              <QuickActionTile
+                icon="cart-plus"
+                label="New Order"
+                onPress={() => navigation.navigate('Orders')}
+                style={{ width: tileWidth }}
+              />
+              <QuickActionTile
+                icon="table-furniture"
+                label="Table Map"
+                onPress={() => navigation.navigate('Tables')}
+                style={{ width: tileWidth }}
+              />
+              <QuickActionTile
+                icon="book-open-outline"
+                label="Menu"
+                onPress={() => navigation.navigate('MenuSync')}
+                style={{ width: tileWidth }}
+              />
+              <QuickActionTile
+                icon="clock-outline"
+                label="Shift Summary"
+                onPress={() => navigation.navigate('Shift')}
+                style={{ width: tileWidth }}
+              />
+              <QuickActionTile
+                icon="chart-bar"
+                label="Reports"
+                onPress={() => navigation.navigate('ShiftReports')}
+                style={{ width: tileWidth }}
+              />
+              <QuickActionTile
+                icon="plus-circle-outline"
+                label="Add Item"
+                onPress={() => navigation.navigate('MenuSync')}
+                style={{ width: tileWidth }}
+              />
             </View>
           </View>
         </View>
-      )}
-
-      {/* Metric Cards (3-column grid) */}
-      <View style={styles.metricsGrid}>
-        <MetricCard
-          value={pendingOrders}
-          label="Pending Orders"
-          icon="cart"
-          accentColor="#FF9800"
-          meta="+2 in last 10m"
-          style={styles.metricCard}
-        />
-        <MetricCard
-          value={preparingOrders}
-          label="Preparing"
-          icon="coffee"
-          accentColor={COLORS.primary}
-          meta="Avg. 4.5m"
-          style={styles.metricCard}
-        />
-        <MetricCard
-          value={doneOrders}
-          label="Completed Today"
-          icon="check-circle"
-          accentColor={COLORS.tertiary}
-          meta="Target: 60"
-          style={styles.metricCard}
-        />
-      </View>
-
-      {/* Quick Actions Grid */}
-      <View style={styles.sectionHeader}>
-        <Text style={styles.sectionTitle}>Quick Actions</Text>
-      </View>
-      <View style={styles.actionsGrid}>
-        {menuItems.map((item) => (
-          <Pressable
-            key={item.screen}
-            style={({ pressed }) => [
-              styles.actionTile,
-              pressed && styles.actionTilePressed,
-            ]}
-            onPress={() => navigation.navigate(item.screen as any)}>
-            <View style={styles.actionIconCircle}>
-              <MaterialIcon name={item.icon} size={32} color={COLORS.primary} />
-            </View>
-            <Text style={styles.actionTitle}>{item.title}</Text>
-          </Pressable>
-        ))}
       </View>
     </ScrollView>
   );
@@ -129,141 +210,75 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
   },
   content: {
-    padding: SPACING.lg,
+    padding: SPACING.md,
+    gap: SPACING.md,
   },
-  shiftCard: {
+  header: {
+    marginBottom: SPACING.md,
+  },
+  greeting: {
+    ...TYPOGRAPHY.titleLg,
+    color: COLORS.onSurface,
+    fontWeight: '700',
+  },
+  subtitle: {
+    ...TYPOGRAPHY.bodyMd,
+    color: COLORS.onSurfaceVariant,
+    marginTop: SPACING.xxs,
+  },
+  statCardsRow: {
+    flexDirection: 'row',
+    gap: SPACING.md,
+  },
+  twoColumnRow: {
+    flexDirection: 'row',
+    gap: SPACING.md,
+    alignItems: 'flex-start',
+  },
+  leftColumn: {
+    gap: SPACING.md,
+  },
+  rightColumn: {
+    gap: SPACING.md,
+  },
+  recentOrdersCard: {
     backgroundColor: COLORS.surface,
     borderRadius: BORDER_RADIUS.md,
-    borderWidth: 1,
-    borderColor: `${COLORS.primary}1A`, // 10% opacity
-    padding: SPACING.cardPadding,
-    marginBottom: SPACING.lg,
+    padding: SPACING.md,
     ...getShadowStyle('sm'),
   },
-  shiftContent: {
+  topItemsCard: {
+    backgroundColor: COLORS.surface,
+    borderRadius: BORDER_RADIUS.md,
+    padding: SPACING.md,
+    ...getShadowStyle('sm'),
+  },
+  quickActionsCard: {
+    backgroundColor: COLORS.surface,
+    borderRadius: BORDER_RADIUS.md,
+    padding: SPACING.md,
+    ...getShadowStyle('sm'),
+  },
+  cardHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    gap: SPACING.lg,
-  },
-  shiftLeft: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: SPACING.md,
-  },
-  iconCircle: {
-    width: SPACING.iconCircleMd,
-    height: SPACING.iconCircleMd,
-    borderRadius: BORDER_RADIUS.full,
-    backgroundColor: `${COLORS.primary}1A`, // 10% opacity
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  shiftTitle: {
-    ...TYPOGRAPHY.titleLg,
-    color: COLORS.tertiary,
-    fontWeight: '700',
-  },
-  shiftSubtitle: {
-    ...TYPOGRAPHY.bodyLg,
-    color: `${COLORS.primaryDark}B3`, // 70% opacity
-    fontWeight: '500',
-  },
-  shiftRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: SPACING.lg,
-  },
-  cashDisplay: {
-    alignItems: 'flex-end',
-  },
-  cashLabel: {
-    ...TYPOGRAPHY.labelSm,
-    color: COLORS.primaryDark,
-    fontWeight: '700',
-    letterSpacing: 1.2,
-    marginBottom: SPACING.xs,
-  },
-  cashValue: {
-    fontSize: 30,
-    fontWeight: '900',
-    color: COLORS.onSurface,
-    lineHeight: 36,
-  },
-  manageButton: {
-    backgroundColor: COLORS.primary,
-    paddingHorizontal: SPACING.lg,
-    paddingVertical: SPACING.md,
-    borderRadius: BORDER_RADIUS.md,
-    minHeight: SPACING.touchTarget,
-    justifyContent: 'center',
-    ...getShadowStyle('lg'),
-    shadowColor: COLORS.primary,
-  },
-  manageButtonText: {
-    ...TYPOGRAPHY.labelLg,
-    color: COLORS.onPrimary,
-    fontWeight: '700',
-  },
-  buttonPressed: {
-    transform: [{ scale: 0.98 }],
-    opacity: 0.9,
-  },
-  metricsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginHorizontal: -SPACING.sm,
-    marginBottom: SPACING.lg,
-  },
-  metricCard: {
-    width: `${100 / 3 - 2}%`,
-    marginHorizontal: SPACING.sm,
-  },
-  sectionHeader: {
     marginBottom: SPACING.md,
   },
-  sectionTitle: {
-    ...TYPOGRAPHY.titleLg,
-    color: COLORS.tertiary,
-    fontWeight: '700',
-  },
-  actionsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginHorizontal: -SPACING.sm,
-  },
-  actionTile: {
-    width: `${100 / 3 - 2}%`,
-    marginHorizontal: SPACING.sm,
-    marginBottom: SPACING.md,
-    backgroundColor: COLORS.surface,
-    borderRadius: BORDER_RADIUS.md,
-    borderWidth: 1,
-    borderColor: `${COLORS.primary}1A`, // 10% opacity
-    padding: SPACING.cardPaddingLg,
-    alignItems: 'center',
-    justifyContent: 'center',
-    minHeight: 140,
-    ...getShadowStyle('sm'),
-  },
-  actionTilePressed: {
-    transform: [{ scale: 0.97 }],
-    opacity: 0.9,
-  },
-  actionIconCircle: {
-    width: SPACING.iconCircleLg,
-    height: SPACING.iconCircleLg,
-    borderRadius: BORDER_RADIUS.full,
-    backgroundColor: `${COLORS.primary}1A`, // 10% opacity
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: SPACING.md,
-  },
-  actionTitle: {
+  cardTitle: {
     ...TYPOGRAPHY.titleMd,
-    color: COLORS.tertiary,
+    color: COLORS.onSurface,
     fontWeight: '700',
-    textAlign: 'center',
+  },
+  viewAllLink: {
+    ...TYPOGRAPHY.labelLg,
+    color: COLORS.primary,
+    fontWeight: '600',
+  },
+  quickActionsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: SPACING.sm,
+    marginTop: SPACING.sm,
   },
 });

@@ -9,6 +9,7 @@ export const API_CONFIG = {
   // Change this based on your setup:
   // - Emulator: 10.0.2.2
   // - Physical device on same WiFi: 192.168.0.73
+  // - localhost: Use for web or adjust for your device
   BASE_URL: __DEV__
     ? 'http://192.168.0.73:3001/api'
     : 'https://your-production-url.com/api',

@@ -2,6 +2,8 @@
  * Navigation types for React Navigation
  */
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import type { DrawerScreenProps } from '@react-navigation/drawer';
+import type { CompositeScreenProps } from '@react-navigation/native';
 
 // Auth Stack
 export type AuthStackParamList = {
@@ -10,35 +12,81 @@ export type AuthStackParamList = {
 
 export type LoginScreenProps = NativeStackScreenProps<AuthStackParamList, 'Login'>;
 
-// Main Stack
-export type MainStackParamList = {
+// Drawer (7 main tabs)
+export type DrawerParamList = {
   Dashboard: undefined;
   Orders: undefined;
-  OrderDetail: { orderId: string };
-  Payment: { orderId: string };
   Shift: undefined;
-  ShiftReports: undefined;
-  ShiftReportDetail: { shiftId: string };
-  MenuSync: undefined;
-  MenuSettings: undefined;
   Tables: undefined;
+  MenuSync: undefined;
+  ShiftReports: undefined;
   CashDrawer: undefined;
 };
 
-export type DashboardScreenProps = NativeStackScreenProps<MainStackParamList, 'Dashboard'>;
-export type OrdersScreenProps = NativeStackScreenProps<MainStackParamList, 'Orders'>;
-export type OrderDetailScreenProps = NativeStackScreenProps<MainStackParamList, 'OrderDetail'>;
-export type PaymentScreenProps = NativeStackScreenProps<MainStackParamList, 'Payment'>;
-export type ShiftScreenProps = NativeStackScreenProps<MainStackParamList, 'Shift'>;
-export type ShiftReportsScreenProps = NativeStackScreenProps<MainStackParamList, 'ShiftReports'>;
-export type ShiftReportDetailScreenProps = NativeStackScreenProps<MainStackParamList, 'ShiftReportDetail'>;
-export type MenuSyncScreenProps = NativeStackScreenProps<MainStackParamList, 'MenuSync'>;
-export type MenuSettingsScreenProps = NativeStackScreenProps<MainStackParamList, 'MenuSettings'>;
-export type TablesScreenProps = NativeStackScreenProps<MainStackParamList, 'Tables'>;
-export type CashDrawerScreenProps = NativeStackScreenProps<MainStackParamList, 'CashDrawer'>;
+// Stack for detail/modal screens and drawer wrapper
+export type MainStackParamList = {
+  MainDrawer: undefined;
+  OrderDetail: { orderId: string };
+  Payment: { orderId: string };
+  ShiftReportDetail: { shiftId: string };
+  MenuSettings: undefined;
+};
 
-// Root Stack (combines Auth and Main)
-export type RootStackParamList = AuthStackParamList & MainStackParamList;
+// Root Stack (combines Auth, Drawer, and Detail Stack)
+export type RootStackParamList = AuthStackParamList & DrawerParamList & MainStackParamList;
+
+// Composite screen props that allow navigation to any screen
+export type DashboardScreenProps = CompositeScreenProps<
+  DrawerScreenProps<DrawerParamList, 'Dashboard'>,
+  NativeStackScreenProps<MainStackParamList>
+>;
+
+export type OrdersScreenProps = CompositeScreenProps<
+  DrawerScreenProps<DrawerParamList, 'Orders'>,
+  NativeStackScreenProps<MainStackParamList>
+>;
+
+export type ShiftScreenProps = CompositeScreenProps<
+  DrawerScreenProps<DrawerParamList, 'Shift'>,
+  NativeStackScreenProps<MainStackParamList>
+>;
+
+export type TablesScreenProps = CompositeScreenProps<
+  DrawerScreenProps<DrawerParamList, 'Tables'>,
+  NativeStackScreenProps<MainStackParamList>
+>;
+
+export type MenuSyncScreenProps = CompositeScreenProps<
+  DrawerScreenProps<DrawerParamList, 'MenuSync'>,
+  NativeStackScreenProps<MainStackParamList>
+>;
+
+export type ShiftReportsScreenProps = CompositeScreenProps<
+  DrawerScreenProps<DrawerParamList, 'ShiftReports'>,
+  NativeStackScreenProps<MainStackParamList>
+>;
+
+export type CashDrawerScreenProps = CompositeScreenProps<
+  DrawerScreenProps<DrawerParamList, 'CashDrawer'>,
+  NativeStackScreenProps<MainStackParamList>
+>;
+
+export type OrderDetailScreenProps = CompositeScreenProps<
+  NativeStackScreenProps<MainStackParamList, 'OrderDetail'>,
+  DrawerScreenProps<DrawerParamList>
+>;
+
+export type PaymentScreenProps = CompositeScreenProps<
+  NativeStackScreenProps<MainStackParamList, 'Payment'>,
+  DrawerScreenProps<DrawerParamList>
+>;
+
+export type ShiftReportDetailScreenProps = CompositeScreenProps<
+  NativeStackScreenProps<MainStackParamList, 'ShiftReportDetail'>,
+  DrawerScreenProps<DrawerParamList>
+>;
+
+export type MenuSettingsScreenProps = NativeStackScreenProps<MainStackParamList, 'MenuSettings'>;
 
 declare global {
   namespace ReactNavigation {

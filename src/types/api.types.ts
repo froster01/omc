@@ -175,6 +175,8 @@ export interface Table {
   number: number;
   name: string | null;
   isActive: boolean;
+  qrCode?: string;  // base64 data URL from backend
+  url?: string;     // customer-facing table URL
 }
 
 export interface GenerateTablesRequest {

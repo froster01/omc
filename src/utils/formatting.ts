@@ -5,15 +5,15 @@ import { format, formatDistance } from 'date-fns';
 import { COLORS, getStatusColor as getTokenStatusColor } from './designTokens';
 
 /**
- * Format number as currency
+ * Format number as currency (Malaysian Ringgit)
  */
 export const formatCurrency = (amount: number | string): string => {
   const num = typeof amount === 'string' ? parseFloat(amount) : amount;
-  return new Intl.NumberFormat('id-ID', {
+  return new Intl.NumberFormat('ms-MY', {
     style: 'currency',
-    currency: 'IDR',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
+    currency: 'MYR',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
   }).format(num);
 };
 
